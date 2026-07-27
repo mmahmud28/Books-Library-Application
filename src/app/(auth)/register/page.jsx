@@ -16,6 +16,30 @@ export default function RegisterPage() {
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    // Handle registration logic here
+    const formData = new FormData(e.target);
+    const data = {
+      fullName: formData.get("fullName"),
+      phoneNumber: formData.get("phoneNumber"),
+      email: formData.get("email"),
+      photoURL: formData.get("photoURL"),
+      password: formData.get("password"),
+      confirmPassword: formData.get("confirmPassword"),
+    };
+    console.log("Registration Data:", data);
+    const response = await fetch("/api/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    const result = await response.json();
+    console.log("Registration Result:", result);
+  }
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-purple-950">
       {/* Background */}
@@ -103,6 +127,15 @@ export default function RegisterPage() {
                 </div>
 
                 <div className="relative">
+                  <FaUser className="absolute left-4 top-4 text-indigo-400" />
+                  <input
+                    type="text"
+                    placeholder="Phone Number"
+                    className="input input-bordered h-14 w-full rounded-2xl border-white/10 bg-white/10 pl-12 text-white placeholder:text-slate-400 focus:border-indigo-500"
+                  />
+                </div>
+
+                <div className="relative">
                   <FaEnvelope className="absolute left-4 top-4 text-indigo-400" />
                   <input
                     type="email"
@@ -157,6 +190,7 @@ export default function RegisterPage() {
                 </div>
 
                 <motion.button
+                onClick={handleRegister}
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: .98 }}
                   className="h-14 w-full rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 font-semibold text-white shadow-lg transition"

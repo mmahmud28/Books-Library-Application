@@ -2,6 +2,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "./Components/Navbar";
 import Footer from "./Components/Footer";
+import toast, { Toaster } from 'react-hot-toast';
+
 
 
 const geistSans = Geist({
@@ -22,14 +24,24 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html
-      lang="en"
+      lang="en" theme="light"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Navbar/>
-       <main> {children} </main>
-       <Footer/>
-        </body>
+        <Navbar />
+        <Toaster position="top-right"
+          gutter={12}
+          toastOptions={{
+            duration: 3000,
+            style: {
+              borderRadius: "12px",
+              background: "#1f2937",
+              color: "#fff",
+            },
+          }} />
+        <main> {children} </main>
+        <Footer />
+      </body>
     </html>
   );
 }

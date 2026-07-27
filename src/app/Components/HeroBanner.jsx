@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
+import {motion} from "motion/react"
 
 import {
   Button,
@@ -17,6 +18,8 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "@gravity-ui/icons";
+
+
 
 const slides = [
   {

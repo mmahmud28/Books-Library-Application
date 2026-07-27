@@ -22,6 +22,7 @@ const SignUpPage = () => {
     const phone = formData.get("phone");
     const email = formData.get("email");
     const image = formData.get("image");
+    const role = formData.get("role");
     const password = formData.get("password");
     const confirmPassword = formData.get("confirmPassword");
 
@@ -43,6 +44,7 @@ const SignUpPage = () => {
         phone,
         email,
         image,
+        role,
         password
       })
 
@@ -137,6 +139,65 @@ const SignUpPage = () => {
                 className="input input-bordered w-full text-base-content placeholder:text-base-content/50"
                 required
               />
+            </div>
+
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text text-base font-semibold">
+                  Select Your Role
+                </span>
+              </label>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2">
+                <label className="cursor-pointer">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="user"
+                    className="peer hidden"
+                    defaultChecked
+                  />
+
+                  <div className="border-2 border-base-300 rounded-xl p-4 text-center transition-all duration-200 peer-checked:border-primary peer-checked:bg-primary peer-checked:text-primary-content hover:border-primary">
+                    <h3 className="font-semibold">👤 User</h3>
+                    <p className="text-xs opacity-80 mt-1">
+                      Browse & Buy Books
+                    </p>
+                  </div>
+                </label>
+
+                <label className="cursor-pointer">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="librarian"
+                    className="peer hidden"
+                  />
+
+                  <div className="border-2 border-base-300 rounded-xl p-4 text-center transition-all duration-200 peer-checked:border-success peer-checked:bg-success peer-checked:text-success-content hover:border-success">
+                    <h3 className="font-semibold">📚 Librarian</h3>
+                    <p className="text-xs opacity-80 mt-1">
+                      Manage Books
+                    </p>
+                  </div>
+                </label>
+
+                <label className="cursor-pointer">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="admin"
+                    className="peer hidden"
+                  />
+
+                  <div className="border-2 border-base-300 rounded-xl p-4 text-center transition-all duration-200 peer-checked:border-error peer-checked:bg-error peer-checked:text-error-content hover:border-error">
+                    <h3 className="font-semibold">🛡️ Admin</h3>
+                    <p className="text-xs opacity-80 mt-1">
+                      Full System Access
+                    </p>
+                  </div>
+                </label>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

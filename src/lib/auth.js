@@ -20,6 +20,9 @@ export const auth = betterAuth({
       phone:{
         type: String,
         required: true,
+      },
+      role:{
+        default: "users",
       }
     }
   }

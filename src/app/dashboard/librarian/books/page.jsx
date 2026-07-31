@@ -47,13 +47,51 @@ const LibrarianAllBooksPage = () => {
         }
     };
 
-    const handleStatus = (bookId, newStatus) => {
-        setBooks((prevBooks) =>
-            prevBooks.map((book) =>
-                book._id === bookId ? { ...book, status: newStatus } : book
-            )
-        );
-    }
+    const handleStatus = async (id, newStatus) => {
+        console.log("Sending:", id, newStatus);
+
+        try {
+            const res = await fetch(
+                `http://localhost:5000/api/books/status/${id}`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        status: newStatus,
+                    }),
+                }
+            );
+
+            const data = await res.json();
+
+            console.log("STATUS API RESPONSE:", data);
+
+            if (!res.ok) {
+                throw new Error(data.message || "Update failed");
+            }
+
+            // Backend সফল হওয়ার পরেই UI পরিবর্তন
+            setBooks((prev) =>
+                prev.map((book) =>
+                    book._id === id
+                        ? {
+                            ...book,
+                            status: newStatus,
+                        }
+                        : book
+                )
+            );
+
+            toast.success("Status updated successfully");
+
+        } catch (error) {
+            console.error("STATUS ERROR:", error);
+
+            toast.error(error.message);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-base-100 p-6 lg:p-10">
@@ -268,19 +306,20 @@ ${book.status === "active"
                                         onClick={() =>
                                             handleStatus(
                                                 book._id,
-                                                book.status === "active" ? "inactive" : "active"
+                                                book.status === "active"
+                                                    ? "inactive"
+                                                    : "active"
                                             )
                                         }
                                         className={`btn w-full ${book.status === "active"
-                                            ? "btn-warning"
-                                            : "btn-success"
+                                                ? "btn-warning"
+                                                : "btn-success"
                                             }`}
                                     >
                                         {book.status === "active"
                                             ? "🚫 Unpublish"
                                             : "👁 Publish"}
                                     </button>
-
                                 </div>
 
 
@@ -371,6 +410,7 @@ ${book.status === "active"
         </div>
 
     );
+
 };
 
 export default LibrarianAllBooksPage;

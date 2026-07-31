@@ -3,9 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { getlibraribooks } from "@/lib/api/librainBooksLoad";
 import { useSession } from "@/lib/auth-client";
+import Link from "next/link";
+import { bookDelete } from "@/lib/action/librarians";
+import toast from "react-hot-toast";
 
 const LibrarianAllBooksPage = () => {
     const { data: session } = useSession();
+    const [selectedBook, setSelectedBook] = useState(null);
 
     const user = session?.user;
 
@@ -31,6 +35,25 @@ const LibrarianAllBooksPage = () => {
             canceled: books.filter((b) => b.status === "canceled").length,
         };
     }, [books]);
+
+    const handleDelete = async (bookId) => {
+        const result = await bookDelete(bookId);
+
+        if (result.deletedCount > 0) {
+            setBooks((prev) => prev.filter((book) => book._id !== bookId));
+            toast.success("Book deleted successfully");
+        } else {
+            toast.error("Failed to delete book");
+        }
+    };
+
+    const handleStatus = (bookId, newStatus) => {
+        setBooks((prevBooks) =>
+            prevBooks.map((book) =>
+                book._id === bookId ? { ...book, status: newStatus } : book
+            )
+        );
+    }
 
     return (
         <div className="min-h-screen bg-base-100 p-6 lg:p-10">
@@ -209,13 +232,57 @@ ${book.status === "active"
 
                                 </div>
 
-                                <div className="card-actions mt-6">
 
-                                    <button className="btn btn-primary btn-block">
+
+                                <div className="card-actions mt-6 flex-col gap-3">
+
+                                    <Link
+                                        href={`/dashboard/librarian/books/${book._id}`}
+                                        className="btn btn-primary w-full"
+                                    >
                                         View Details
+                                    </Link>
+
+                                    <div className="grid grid-cols-2 gap-3 w-full">
+
+                                        <Link
+                                            href={`/dashboard/librarian/books/edit/${book._id}`}
+                                            className="btn btn-outline btn-info"
+                                        >
+                                            ✏️ Edit
+                                        </Link>
+
+                                        <button
+                                            onClick={() => {
+                                                setSelectedBook(book);
+                                                document.getElementById("delete_book_modal").showModal();
+                                            }}
+                                            className="btn btn-outline btn-error"
+                                        >
+                                            🗑 Delete
+                                        </button>
+
+                                    </div>
+
+                                    <button
+                                        onClick={() =>
+                                            handleStatus(
+                                                book._id,
+                                                book.status === "active" ? "inactive" : "active"
+                                            )
+                                        }
+                                        className={`btn w-full ${book.status === "active"
+                                            ? "btn-warning"
+                                            : "btn-success"
+                                            }`}
+                                    >
+                                        {book.status === "active"
+                                            ? "🚫 Unpublish"
+                                            : "👁 Publish"}
                                     </button>
 
                                 </div>
+
 
                             </div>
 
@@ -258,8 +325,51 @@ ${book.status === "active"
 
                 )
             }
+            <dialog id="delete_book_modal" className="modal">
+                <div className="modal-box">
+                    <h3 className="font-bold text-xl text-error">
+                        Delete Book?
+                    </h3>
+
+                    <p className="py-4">
+                        Are you sure you want to delete
+                        <span className="font-bold text-primary">
+                            {" "}
+                            {selectedBook?.title}
+                        </span>
+                        ?
+                    </p>
+
+                    <p className="text-sm text-base-content/60">
+                        This action cannot be undone.
+                    </p>
+
+                    <div className="modal-action">
+                        <form method="dialog">
+                            <button className="btn">
+                                Cancel
+                            </button>
+                        </form>
+
+                        <button
+                            onClick={async () => {
+                                await handleDelete(selectedBook._id);
+                                document.getElementById("delete_book_modal").close();
+                            }}
+                            className="btn btn-error"
+                        >
+                            🗑 Yes, Delete
+                        </button>
+                    </div>
+                </div>
+
+                <form method="dialog" className="modal-backdrop">
+                    <button>close</button>
+                </form>
+            </dialog>
 
         </div>
+
     );
 };
 

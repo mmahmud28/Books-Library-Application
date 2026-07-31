@@ -39,3 +39,19 @@ export const serverMutation = async (path, data) => {
     return res.json();
 
 }
+
+export const serverDelete = async (path, options = {}) => {
+  const res = await fetch(`${baseUrl}${path}`, {
+    ...options,
+  });
+
+  if (res.status === 404) {
+    throw new Error("API endpoint not found");
+  } else if (res.status === 500) {
+    throw new Error("Internal Server Error");
+  } else if (!res.ok) {
+    throw new Error(`HTTP error! status: ${res.status}`);
+  }
+
+  return res.json();
+};

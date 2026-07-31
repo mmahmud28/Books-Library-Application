@@ -11,11 +11,21 @@ export const getlibraribooks = async (publisher, status = 'active') =>{
 
     const data = await res.json();
     return data;
-
 }
 
-export const getAllBooks = async () =>{
-    const res = await fetch(`${baseUrl}/api/allBooks`, {
+export const getAllBooks = async (status='active') =>{
+    const res = await fetch(`${baseUrl}/api/allActiveBooks?status=${status}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+    const data = await res.json();
+    return data;
+}
+
+export const getSingleBooks = async (id) =>{
+    const res = await fetch(`${baseUrl}/api/books/${id}`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",

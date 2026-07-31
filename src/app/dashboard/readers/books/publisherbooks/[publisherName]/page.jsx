@@ -2,8 +2,10 @@ import { getlibraribooks } from "@/lib/api/booksLoad";
 import Image from "next/image";
 import Link from "next/link";
 
-const PublisherBooks = async () => {
-  const publisher = "Prentice Hall";
+const PublisherBooks = async ({ params }) => {
+
+  const { publisherName } = await params;
+  const publisher = decodeURIComponent(publisherName);
   const status = "active";
 
   const publisherBooks = (await getlibraribooks(publisher, status)) || [];
@@ -14,7 +16,7 @@ const PublisherBooks = async () => {
 
   return (
     <div className="min-h-screen bg-[#07090e] text-slate-100 selection:bg-indigo-500 selection:text-white relative overflow-hidden font-sans">
-      
+
       {/* Dynamic Aurora & Neon Mesh Background */}
       <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-gradient-to-r from-indigo-600/30 via-purple-600/20 to-pink-600/25 rounded-full blur-[140px] pointer-events-none -z-10" />
       <div className="absolute top-1/2 right-0 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[160px] pointer-events-none -z-10" />
@@ -46,7 +48,7 @@ const PublisherBooks = async () => {
 
         {/* Compact Statistics Bar */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          
+
           {/* Total */}
           <div className="group relative rounded-2xl bg-gradient-to-b from-slate-900/80 to-slate-900/40 border border-white/10 p-5 backdrop-blur-xl hover:border-indigo-500/40 transition-all duration-300 flex items-center justify-between">
             <div>
@@ -112,7 +114,7 @@ const PublisherBooks = async () => {
                   ) : (
                     <span className="text-4xl opacity-20">📘</span>
                   )}
-                  
+
                   {/* Category Pill on Image */}
                   <div className="absolute top-2 left-2 z-10">
                     <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-950/80 border border-white/10 text-indigo-300 backdrop-blur-md">
@@ -168,10 +170,10 @@ const PublisherBooks = async () => {
                   {/* Action Link */}
                   <div className="pt-2 border-t border-white/5 flex items-center justify-end">
                     <Link
-                      href={`/books/${book._id}`}
-                      className="px-3.5 py-1.5 rounded-lg bg-indigo-600/80 hover:bg-indigo-500 border border-indigo-400/30 text-white font-medium text-xs transition-all shadow-md shadow-indigo-600/20"
+                      href={`/dashboard/readers/books/${book._id}`}
+                      className="px-4 py-1.5 text-xs rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-500 shadow-lg shadow-indigo-600/20 transition-all"
                     >
-                      View Details →
+                      Details →
                     </Link>
                   </div>
                 </div>

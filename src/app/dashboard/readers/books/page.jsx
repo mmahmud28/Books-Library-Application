@@ -106,7 +106,7 @@ const BooksPage = async () => {
                     Added: <span className="text-slate-300">{book.addedBy}</span>
                   </span>
                   <Link
-                    href={`/books/${book._id}`}
+                    href={`/dashboard/readers/books/${book._id}`}
                     className="px-4 py-1.5 text-xs rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-500 shadow-lg shadow-indigo-600/20 transition-all"
                   >
                     Details →

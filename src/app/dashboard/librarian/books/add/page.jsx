@@ -1,6 +1,7 @@
 "use client";
 
 import { createBooks } from "@/lib/action/books";
+import { setErrorMap } from "better-auth";
 import Image from "next/image";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
@@ -21,8 +22,12 @@ const languages = ["Bangla", "English", "Arabic", "Hindi", "Urdu"];
 const conditions = ["New", "Like New", "Good", "Fair"];
 
 export default function AddBooks() {
-  const [imageUrl, setImageUrl] = useState("");
+
+  const [coverImage, setCoverImage] = useState("");
   const [imageError, setImageError] = useState(false);
+  const [isUploading, setUploading] = useState(false);
+
+
 
   // Handle URL change & reset image load error state
   const handleUrlChange = (e) => {
@@ -30,12 +35,61 @@ export default function AddBooks() {
     setImageError(false);
   };
 
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File size exceeds 5MB");
+      return;
+    }
+
+    try {
+      setUploading(true);
+
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const apiKey = process.env.NEXT_PUBLIC_IMAGEBB_API_KEY;
+
+      const response = await fetch(
+        `https://api.imgbb.com/1/upload?key=${apiKey}`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setCoverImage(data.data.display_url);
+        setImageError(false);
+        toast.success("Image Uploaded Successfully");
+      } else {
+        toast.error("Upload Failed");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Upload Failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
 
   const handelSubmit = async (e) => {
     e.preventDefault();
 
-    const fromdata = new FormData(e.target)
-    const data = Object.fromEntries(fromdata.entries())
+    if (!coverImage) {
+      toast.error("Please Upload Book Cover");
+      return;
+    }
+
+    const formData = new FormData(e.target);
+
+    const data = Object.fromEntries(formData.entries());
 
     const bookData = {
       title: data.title,
@@ -48,20 +102,21 @@ export default function AddBooks() {
       condition: data.condition,
       addedBy: data.addedBy,
       status: data.status,
-      coverImage: imageUrl,
-    }
+      coverImage,
+    };
 
-    const res = await createBooks(bookData)
+    const res = await createBooks(bookData);
 
     if (res.insertedId) {
-      e.target.reset();
-      setImageUrl("");
-      setImageError(false);
       toast.success("Book Added Successfully");
+
+      e.target.reset();
+
+      setCoverImage("");
+
+      setImageError(false);
     }
-
-
-  }
+  };
 
   return (
     <div className="min-h-screen bg-base-300 text-base-content py-10 px-4 sm:px-6 lg:px-8 relative font-sans">
@@ -109,60 +164,47 @@ export default function AddBooks() {
 
                 {/* Dynamic Preview Box */}
                 {/* Dynamic Preview Box */}
-                <div className="border-2 border-dashed border-base-300 bg-base-200/50 rounded-2xl flex flex-col items-center justify-center min-h-[280px] p-4 text-center overflow-hidden relative">
-                  {imageUrl && !imageError ? (
-                    <div className="relative w-full h-[260px] flex items-center justify-center group">
+                <div className="border-2 border-dashed border-base-300 bg-base-200/50 rounded-2xl flex flex-col items-center justify-center min-h-[280px] p-4 overflow-hidden">
+
+                  {coverImage && !imageError ? (
+                    <div className="relative w-full h-[260px]">
                       <Image
-                        src={imageUrl}
-                        alt="Book Cover Preview"
+                        src={coverImage}
+                        alt="Book Cover"
                         fill
-                        sizes="(max-width: 768px) 100vw, 300px"
-                        className="object-contain rounded-lg shadow-md transition-transform duration-300 group-hover:scale-105"
+                        className="object-contain rounded-xl"
                         onError={() => setImageError(true)}
                       />
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center justify-center">
-                      <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary text-3xl mb-3">
-                        📖
-                      </div>
-                      <p className="font-bold text-sm">
-                        {imageError ? "Invalid Image URL" : "No Artwork Selected"}
-                      </p>
-                      <p className="text-xs text-base-content/60 mt-1">
-                        {imageError
-                          ? "Unable to load image from provided link"
-                          : "Provide image details below"}
+                    <div className="text-center">
+                      <div className="text-6xl">📚</div>
+                      <h2 className="font-bold mt-3">
+                        {isUploading ? "Uploading..." : "No Image Selected"}
+                      </h2>
+                      <p className="text-sm opacity-60 mt-1">
+                        Upload Book Cover
                       </p>
                     </div>
                   )}
+
                 </div>
 
-                {/* Direct Link Input */}
-                <fieldset className="fieldset">
-                  <legend className="fieldset-legend text-xs font-bold">
-                    Direct Image URL
-                  </legend>
-                  <input
-                    type="url"
-                    value={imageUrl}
-                    onChange={handleUrlChange}
-                    placeholder="https://images.unsplash.com/photo-..."
-                    className="input text-white input-bordered w-full"
-                  />
-                </fieldset>
 
                 {/* File Upload */}
                 <fieldset className="fieldset">
-                  <legend className="fieldset-legend text-xs font-bold">
-                    Or Upload File
+
+                  <legend className="fieldset-legend">
+                    Upload Book Cover
                   </legend>
+
                   <input
-                    name="coverImage"
                     type="file"
                     accept="image/*"
+                    onChange={handleImageUpload}
                     className="file-input file-input-bordered file-input-primary w-full"
                   />
+
                 </fieldset>
               </div>
 
@@ -184,7 +226,7 @@ export default function AddBooks() {
                       Book Title <span className="text-error">*</span>
                     </legend>
                     <input
-                    name="title"
+                      name="title"
                       type="text"
                       placeholder="e.g. Clean Code"
                       className="input text-white input-bordered w-full"
@@ -318,7 +360,7 @@ export default function AddBooks() {
                       Added By
                     </legend>
                     <input
-                    name="addedBy"
+                      name="addedBy"
                       type="text"
                       value="Current Librarian"
                       readOnly
@@ -332,7 +374,7 @@ export default function AddBooks() {
                       Status
                     </legend>
                     <input
-                    name="status"
+                      name="status"
                       type="text"
                       value="Pending Approval"
                       readOnly
@@ -346,15 +388,19 @@ export default function AddBooks() {
                   <button
                     type="button"
                     onClick={() => {
-                      setImageUrl("");
+                      setCoverImage("");
                       setImageError(false);
                     }}
                     className="btn btn-ghost text-error"
                   >
                     Reset
                   </button>
-                  <button type="submit" className="btn btn-primary px-8">
-                    Add Book
+                  <button
+                    type="submit"
+                    disabled={isUploading}
+                    className="btn btn-primary px-8"
+                  >
+                    {isUploading ? "Uploading..." : "Add Book"}
                   </button>
                 </div>
               </div>

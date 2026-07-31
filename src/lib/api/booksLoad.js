@@ -1,8 +1,8 @@
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
-export const getlibraribooks = async (publisher, status = 'active') =>{
+export const getlibraribooks = async (addedBy, status = 'active') =>{
 
-    const res = await fetch(`${baseUrl}/api/books?publisher=${publisher}&status=${status}`, {
+    const res = await fetch(`${baseUrl}/api/books?addedBy=${addedBy}&status=${status}`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",

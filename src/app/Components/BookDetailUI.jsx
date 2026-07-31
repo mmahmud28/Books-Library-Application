@@ -180,7 +180,7 @@ export default function BookDetailUI({ safeBook }) {
               </div>
             </div>
             <Link
-              href={`/dashboard/readers/books/publisherbooks/${encodeURIComponent(safeBook.publisher)}`}
+              href={`/dashboard/readers/books/publisherbooks/${encodeURIComponent(safeBook.addedBy)}`}
               className="btn btn-ghost btn-sm rounded-xl gap-1.5 text-primary font-semibold hover:bg-primary/10"
             >
               View Profile

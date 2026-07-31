@@ -5,10 +5,10 @@ import Link from "next/link";
 const PublisherBooks = async ({ params }) => {
 
   const { publisherName } = await params;
-  const publisher = decodeURIComponent(publisherName);
+  const addedBy = decodeURIComponent(publisherName);
   const status = "active";
 
-  const publisherBooks = (await getlibraribooks(publisher, status)) || [];
+  const publisherBooks = (await getlibraribooks(addedBy, status)) || [];
 
   const totalBooks = publisherBooks.length;
   const inStock = publisherBooks.filter((book) => book.stockQuantity > 0).length;
@@ -35,12 +35,12 @@ const PublisherBooks = async ({ params }) => {
             </div>
 
             <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
-              {publisher}
+              {addedBy}
             </h1>
 
             <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
               Explore the exclusive library collection published by{" "}
-              <span className="text-indigo-300 font-semibold">{publisher}</span>.
+              <span className="text-indigo-300 font-semibold">{addedBy}</span>.
               Streamlined for quick discovery and access.
             </p>
           </div>

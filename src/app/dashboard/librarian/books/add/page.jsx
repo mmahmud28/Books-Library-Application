@@ -1,7 +1,8 @@
 "use client";
 
 import { createBooks } from "@/lib/action/books";
-import { setErrorMap } from "better-auth";
+import { useSession } from "@/lib/auth-client";
+import { getSession } from "better-auth/api";
 import Image from "next/image";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
@@ -26,6 +27,14 @@ export default function AddBooks() {
   const [coverImage, setCoverImage] = useState("");
   const [imageError, setImageError] = useState(false);
   const [isUploading, setUploading] = useState(false);
+
+  const { data: session, isPending } = useSession();
+
+
+  const user = session?.user || null;
+
+  const id = user?.id || null;
+  
 
 
 
@@ -103,6 +112,7 @@ export default function AddBooks() {
       addedBy: data.addedBy,
       status: data.status,
       coverImage,
+      addById: id,
     };
 
     const res = await createBooks(bookData);
@@ -362,11 +372,13 @@ export default function AddBooks() {
                     <input
                       name="addedBy"
                       type="text"
-                      value="Current Librarian"
+                      value={user?.name || "N/A"}
                       readOnly
                       className="input text-white input-bordered w-full bg-base-200 text-base-content/70 cursor-not-allowed"
                     />
-                  </fieldset>
+                  </fieldset>                  
+
+
 
                   {/* Readonly: Status */}
                   <fieldset className="fieldset">

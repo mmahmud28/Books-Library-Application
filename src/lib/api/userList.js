@@ -10,3 +10,14 @@ export const allUserList = async () => {
     const data = await res.json();
     return data;
 }
+
+export const allBooksList = async () => {
+    const res = await fetch(`${baseUrl}/api/adminBooksList`,{
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+    const data = await res.json();
+    return data;
+}

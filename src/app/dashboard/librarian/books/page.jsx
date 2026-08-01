@@ -47,7 +47,16 @@ const LibrarianAllBooksPage = () => {
         }
     };
 
-    const handleStatus = async (id, newStatus) => {
+    const handleStatus = async (id, currentStatus, newStatus) => {
+        // Pending থাকলে status পরিবর্তন করা যাবে না
+        if (
+            currentStatus === "pending" ||
+            currentStatus === "Pending Approval"
+        ) {
+            toast.error("This book is waiting for admin approval.");
+            return;
+        }
+
         console.log("Sending:", id, newStatus);
 
         try {
@@ -66,29 +75,20 @@ const LibrarianAllBooksPage = () => {
 
             const data = await res.json();
 
-            console.log("STATUS API RESPONSE:", data);
-
             if (!res.ok) {
                 throw new Error(data.message || "Update failed");
             }
 
-            // Backend সফল হওয়ার পরেই UI পরিবর্তন
             setBooks((prev) =>
                 prev.map((book) =>
                     book._id === id
-                        ? {
-                            ...book,
-                            status: newStatus,
-                        }
+                        ? { ...book, status: newStatus }
                         : book
                 )
             );
 
             toast.success("Status updated successfully");
-
         } catch (error) {
-            console.error("STATUS ERROR:", error);
-
             toast.error(error.message);
         }
     };
@@ -306,14 +306,13 @@ ${book.status === "active"
                                         onClick={() =>
                                             handleStatus(
                                                 book._id,
-                                                book.status === "active"
-                                                    ? "inactive"
-                                                    : "active"
+                                                book.status,
+                                                book.status === "active" ? "inactive" : "active"
                                             )
                                         }
                                         className={`btn w-full ${book.status === "active"
-                                                ? "btn-warning"
-                                                : "btn-success"
+                                            ? "btn-warning"
+                                            : "btn-success"
                                             }`}
                                     >
                                         {book.status === "active"

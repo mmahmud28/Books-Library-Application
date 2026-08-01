@@ -12,3 +12,14 @@ export const getlibraribooks = async (id) =>{
     const data = await res.json();
     return data;
 }
+
+export const allLibrarianList = async () => {
+    const res = await fetch(`${baseUrl}/api/librarianList`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+    const data = await res.json();
+    return data;
+}

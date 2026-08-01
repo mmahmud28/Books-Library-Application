@@ -8,7 +8,8 @@ export function DashBoardSidebar() {
         { icon: Magnifier, label: "Books", href: "/dashboard/readers/books" },
         { icon: Bell, label: "My Reading List", href: "/dashboard/reading-list" },
         { icon: Envelope, label: "My Reviews", href: "/dashboard/reviews" },
-        { icon: Person, label: "Profile", href: "/dashboard/profile" },
+        { icon: Person, label: "Publisher Books", href: "/dashboard/readers/books/publisherbooks" },
+         { icon: Person, label: "Profile", href: "/dashboard/profile" },
         { icon: Gear, label: "Settings", href: "/dashboard/settings" },
     ];
 

@@ -14,10 +14,19 @@ import {
     FaExclamationTriangle,
     FaSearch,
 } from "react-icons/fa";
+import { booksStatusUpdate } from "@/lib/api/userList";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { bookDelete } from "@/lib/action/librarians";
+
+
 
 export default function BookManagementView({ initialBooks }) {
     const [activeTab, setActiveTab] = useState("all");
     const [searchTerm, setSearchTerm] = useState("");
+
+    const router = useRouter();
+
 
     // ফিল্টার লজিক
     const filteredBooks = initialBooks.filter((book) => {
@@ -44,6 +53,32 @@ export default function BookManagementView({ initialBooks }) {
         active: initialBooks.filter((b) => b.status === "active").length,
         pending: initialBooks.filter((b) => b.status === "Pending Approval").length,
         inactive: initialBooks.filter((b) => b.status === "inactive").length,
+    };
+
+    const handelStatusUpdate = async (id) => {
+        try {
+            const result = await booksStatusUpdate(id);
+
+            if (result.success) {
+                toast.success("Status updated");
+                router.refresh();
+            } else {
+                toast.error(result.message);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handeBooksDelete = async (id) => {
+        const data = await bookDelete(id);
+
+        if (data.success) {
+            toast.success(data.message);
+            router.refresh();
+        } else {
+            toast.error(data.message);
+        }
     };
 
     return (
@@ -94,8 +129,8 @@ export default function BookManagementView({ initialBooks }) {
                     <button
                         onClick={() => setActiveTab("all")}
                         className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-300 ${activeTab === "all"
-                                ? "bg-primary text-primary-content shadow-lg shadow-primary/25 scale-[1.02]"
-                                : "bg-base-100 text-base-content/70 hover:bg-base-200 hover:text-base-content"
+                            ? "bg-primary text-primary-content shadow-lg shadow-primary/25 scale-[1.02]"
+                            : "bg-base-100 text-base-content/70 hover:bg-base-200 hover:text-base-content"
                             }`}
                     >
                         <FaBook className="w-4 h-4" />
@@ -108,8 +143,8 @@ export default function BookManagementView({ initialBooks }) {
                     <button
                         onClick={() => setActiveTab("active")}
                         className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-300 ${activeTab === "active"
-                                ? "bg-success text-success-content shadow-lg shadow-success/25 scale-[1.02]"
-                                : "bg-base-100 text-base-content/70 hover:bg-base-200 hover:text-base-content"
+                            ? "bg-success text-success-content shadow-lg shadow-success/25 scale-[1.02]"
+                            : "bg-base-100 text-base-content/70 hover:bg-base-200 hover:text-base-content"
                             }`}
                     >
                         <FaCheckCircle className="w-4 h-4" />
@@ -122,8 +157,8 @@ export default function BookManagementView({ initialBooks }) {
                     <button
                         onClick={() => setActiveTab("pending")}
                         className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-300 ${activeTab === "pending"
-                                ? "bg-warning text-warning-content shadow-lg shadow-warning/25 scale-[1.02]"
-                                : "bg-base-100 text-base-content/70 hover:bg-base-200 hover:text-base-content"
+                            ? "bg-warning text-warning-content shadow-lg shadow-warning/25 scale-[1.02]"
+                            : "bg-base-100 text-base-content/70 hover:bg-base-200 hover:text-base-content"
                             }`}
                     >
                         <FaClock className="w-4 h-4" />
@@ -136,8 +171,8 @@ export default function BookManagementView({ initialBooks }) {
                     <button
                         onClick={() => setActiveTab("inactive")}
                         className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-300 ${activeTab === "inactive"
-                                ? "bg-error text-error-content shadow-lg shadow-error/25 scale-[1.02]"
-                                : "bg-base-100 text-base-content/70 hover:bg-base-200 hover:text-base-content"
+                            ? "bg-error text-error-content shadow-lg shadow-error/25 scale-[1.02]"
+                            : "bg-base-100 text-base-content/70 hover:bg-base-200 hover:text-base-content"
                             }`}
                     >
                         <FaExclamationTriangle className="w-4 h-4" />
@@ -186,8 +221,8 @@ export default function BookManagementView({ initialBooks }) {
                                     <tr
                                         key={book._id}
                                         className={`transition-all duration-200 hover:bg-base-200/40 ${book.status === "Pending Approval"
-                                                ? "bg-warning/5"
-                                                : ""
+                                            ? "bg-warning/5"
+                                            : ""
                                             }`}
                                     >
                                         <td className="py-4 px-6 font-semibold text-base-content/40">
@@ -240,8 +275,8 @@ export default function BookManagementView({ initialBooks }) {
                                             <div className="flex items-center gap-2">
                                                 <span
                                                     className={`font-bold text-sm ${book.stockQuantity < 5
-                                                            ? "text-error"
-                                                            : "text-base-content/80"
+                                                        ? "text-error"
+                                                        : "text-base-content/80"
                                                         }`}
                                                 >
                                                     {book.stockQuantity}
@@ -258,16 +293,18 @@ export default function BookManagementView({ initialBooks }) {
                                         {/* Status Badge */}
                                         <td>
                                             <span
-                                                className={`badge badge-sm font-semibold py-2 px-3 gap-1 capitalize ${book.status === "active"
-                                                        ? "badge-success text-success-content"
-                                                        : book.status === "Pending Approval"
-                                                            ? "badge-warning text-warning-content animate-pulse"
-                                                            : "badge-error text-error-content"
+                                                onClick={() => handelStatusUpdate(book._id)}
+                                                className={`badge badge-sm font-semibold py-2 px-3 gap-1 capitalize cursor-pointer transition-all duration-200 hover:scale-105 ${book.status === "active"
+                                                    ? "badge-success text-success-content"
+                                                    : book.status === "Pending Approval"
+                                                        ? "badge-warning text-warning-content animate-pulse"
+                                                        : "badge-error text-error-content"
                                                     }`}
                                             >
                                                 {book.status}
                                             </span>
                                         </td>
+
 
                                         {/* Actions Dropdown / Buttons */}
                                         <td>
@@ -275,6 +312,7 @@ export default function BookManagementView({ initialBooks }) {
                                                 {book.status === "Pending Approval" && (
                                                     <>
                                                         <button
+                                                            onClick={() => handelStatusUpdate(book._id)}
                                                             className="btn btn-circle btn-ghost btn-xs text-success hover:bg-success/15 tooltip"
                                                             data-tip="Approve Book"
                                                         >
@@ -299,6 +337,7 @@ export default function BookManagementView({ initialBooks }) {
                                                 </Link>
 
                                                 <button
+                                                    onClick={() => { handeBooksDelete(book._id) }}
                                                     className="btn btn-circle btn-ghost btn-xs text-error hover:bg-error/15 tooltip"
                                                     data-tip="Delete Book"
                                                 >

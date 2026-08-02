@@ -12,7 +12,7 @@ export const allUserList = async () => {
 }
 
 export const allBooksList = async () => {
-    const res = await fetch(`${baseUrl}/api/adminBooksList`,{
+    const res = await fetch(`${baseUrl}/api/adminBooksList`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -21,3 +21,15 @@ export const allBooksList = async () => {
     const data = await res.json();
     return data;
 }
+
+
+export const booksStatusUpdate = async (bookId) => {
+    const res = await fetch(`${baseUrl}/api/books/adminStatus/${bookId}`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    return await res.json();
+};

@@ -11,10 +11,15 @@ import {
   Info, ExternalLink, ShieldCheck, Share2
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from "next/navigation";
+
 
 export default function BookDetailUI({ safeBook }) {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isCartAdded, setIsCartAdded] = useState(false);
+
+  const router = useRouter();
+
 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -38,6 +43,10 @@ export default function BookDetailUI({ safeBook }) {
     // Implement your back navigation logic here, e.g., using Next.js router
     window.history.back();
   }
+
+  const handleBorrow = () => {
+    router.push(`/dashboard/readers/books/booksOrder/${safeBook}`);
+  };
 
 
   return (
@@ -124,28 +133,32 @@ export default function BookDetailUI({ safeBook }) {
 
               <div className="flex flex-wrap gap-3 mt-8">
 
-                <button className="btn btn-primary rounded-xl px-6">
-                  <BookOpen className="w-4 h-4" />
-                  Borrow Now
-                </button>
+                <div className="flex flex-wrap gap-3">
+                  {/* Request Delivery */}
+                  <button onClick={handleBorrow} className="btn btn-primary rounded-xl px-6">
+                    <BookOpen className="w-4 h-4" />
+                    Request Delivery
+                  </button>
 
-                <button
-                  onClick={() => setIsCartAdded(!isCartAdded)}
-                  className={`btn rounded-xl px-6 ${isCartAdded ? "btn-success" : "btn-neutral"
-                    }`}
-                >
-                  <ShoppingCart className="w-4 h-4" />
-                  {isCartAdded ? "In Cart" : "Add to Cart"}
-                </button>
+                  {/* Wishlist */}
+                  <button
+                    onClick={() => setIsWishlisted(!isWishlisted)}
+                    className={`btn rounded-xl px-6 ${isWishlisted ? "btn-error" : "btn-outline"
+                      }`}
+                  >
+                    <Heart className={`w-4 h-4 ${isWishlisted ? "fill-current" : ""}`} />
+                    {isWishlisted ? "Wishlisted" : "Add to Wishlist"}
+                  </button>
+                </div>
 
-                <button
-                  onClick={() => setIsWishlisted(!isWishlisted)}
-                  className={`btn rounded-xl ${isWishlisted ? "btn-error" : "btn-outline"
-                    }`}
-                >
-                  <Heart className={`w-4 h-4 ${isWishlisted ? "fill-current" : ""}`} />
-                </button>
+              </div>
 
+              <div className="flex flex-wrap gap-3 mt-8">
+
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-semibold text-base-content/80">Price:</span>
+                  <span className="text-xl font-bold text-primary">{safeBook?.price ? `৳${safeBook.price}` : 'N/A'}</span>
+                </div>
               </div>
 
             </div>

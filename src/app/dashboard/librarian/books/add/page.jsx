@@ -113,6 +113,7 @@ export default function AddBooks() {
       status: data.status,
       coverImage,
       addById: id,
+      price: parseFloat(data.price) || 0,
     };
 
     const res = await createBooks(bookData);
@@ -280,6 +281,18 @@ export default function AddBooks() {
                       name="publishedYear"
                       type="number"
                       placeholder="2026"
+                      className="input text-white input-bordered w-full"
+                    />
+                  </fieldset>
+
+                  <fieldset className="fieldset">
+                    <legend className="fieldset-legend text-xs font-bold">
+                      Price
+                    </legend>
+                    <input
+                      name="price"
+                      type="number"
+                      placeholder="0.00"
                       className="input text-white input-bordered w-full"
                     />
                   </fieldset>

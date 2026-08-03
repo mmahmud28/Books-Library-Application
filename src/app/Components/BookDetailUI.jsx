@@ -45,7 +45,7 @@ export default function BookDetailUI({ safeBook }) {
   }
 
   const handleBorrow = () => {
-    router.push(`/dashboard/readers/books/booksOrder/${safeBook}`);
+    router.push(`/dashboard/readers/books/booksOrder/${safeBook._id}`);
   };
 
 

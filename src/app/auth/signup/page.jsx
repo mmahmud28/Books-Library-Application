@@ -18,6 +18,7 @@ const SignUpPage = () => {
     console.log(formData);
 
 
+
     const name = formData.get("name");
     const phone = formData.get("phone");
     const email = formData.get("email");
@@ -68,6 +69,8 @@ const SignUpPage = () => {
 
   }
 
+
+  // Re Direct To Homepage
 
 
   return (

@@ -45,6 +45,7 @@ export default function BorrowOrderForm({ safeBook }) {
     };
 
     console.log("Borrow Request Data:", borrowRequest);
+    // Go to payment Page
   };
 
   const durationOptions = [

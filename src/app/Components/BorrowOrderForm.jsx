@@ -8,6 +8,10 @@ import {
   Phone, MapPin, CheckCircle2, ShieldCheck, Info,
   Sparkles, Clock, Send, Loader2, BookmarkCheck, Building, Tag
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { createBorrowRequest } from '@/lib/api/booksOrder';
+import toast from 'react-hot-toast';
+import { useSession } from '@/lib/auth-client';
 
 const containerVariants = {
   hidden: { opacity: 0, scale: 0.98 },
@@ -23,12 +27,17 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
 };
 
-export default function BorrowOrderForm({ safeBook }) {
+export default function BorrowOrderForm({ safeBook, userData }) {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [selectedDays, setSelectedDays] = useState('7');
   const [isPending, startTransition] = useTransition();
 
-  const onBorrowAction = (e) => {
+  const router = useRouter();
+
+  const userDataa = userData || {};  
+
+
+  const onBorrowAction = async (e) => {
     e.preventDefault();
 
     const formData = new FormData(e.target);
@@ -42,10 +51,19 @@ export default function BorrowOrderForm({ safeBook }) {
       address: data.address,
       borrowDays: Number(data.borrowDays),
       notes: data.notes || "",
+      libraryId: safeBook?.addById || null,
+      userId: userDataa?.id || null,
     };
 
-    console.log("Borrow Request Data:", borrowRequest);
-    // Go to payment Page
+
+    const result = await createBorrowRequest(borrowRequest);
+
+    if (result.success) {
+      toast.success('Borrow request placed successfully!');
+      router.push(
+        `/dashboard/readers/books/booksOrder/payment/${result.insertedId}`
+      );
+    }
   };
 
   const durationOptions = [
@@ -310,8 +328,8 @@ export default function BorrowOrderForm({ safeBook }) {
                           key={option.value}
                           onClick={() => setSelectedDays(option.value)}
                           className={`cursor-pointer p-3 rounded-2xl border transition-all text-center relative overflow-hidden flex flex-col justify-center items-center ${selectedDays === option.value
-                              ? 'border-primary bg-primary/10 text-primary shadow-md shadow-primary/10'
-                              : 'border-base-200 bg-base-100/40 hover:bg-base-200/50 text-base-content/80'
+                            ? 'border-primary bg-primary/10 text-primary shadow-md shadow-primary/10'
+                            : 'border-base-200 bg-base-100/40 hover:bg-base-200/50 text-base-content/80'
                             }`}
                         >
                           <span className="text-sm font-extrabold">{option.label}</span>

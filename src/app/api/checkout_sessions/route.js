@@ -1,32 +1,33 @@
-import { NextResponse } from 'next/server'
-import { headers } from 'next/headers'
+import { NextResponse } from "next/server";
+import { headers } from "next/headers";
+import { stripe } from "../../../lib/stripe";
 
-import { stripe } from '../../../lib/stripe'
-
-export async function POST() {
+export async function POST(req) {
   try {
-    const headersList = await headers()
-    const origin = headersList.get('origin')
+    const formData = await req.formData();
+    const orderId = formData.get("orderId");
 
-    // Create Checkout Sessions from body params.
+    const origin = (await headers()).get("origin");
+
     const session = await stripe.checkout.sessions.create({
+      mode: "payment",
       line_items: [
         {
-          // Provide the exact Price ID (for example, price_1234) of the product you want to sell
-          price: '{{PRICE_ID}}',
+          price: "price_1U0wnHGYDeWfvXCmeOslibUl",
           quantity: 1,
         },
       ],
-      mode: 'payment',
-      success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-      // Provide a name (for example, hosted_web_0001) to label this Checkout integration and measure its conversion independently
-      integration_identifier: '{{INTEGRATION_ID}}',
+      success_url: `${origin}/dashboard/readers/books/booksOrder/success?orderId=${orderId}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/dashboard/readers/books/booksOrder/payment/${orderId}`,
     });
-    return NextResponse.redirect(session.url, 303)
-  } catch (err) {
+
+    return NextResponse.redirect(session.url, 303);
+  } catch (error) {
+    console.error(error);
+
     return NextResponse.json(
-      { error: err.message },
-      { status: err.statusCode || 500 }
-    )
+      { error: error.message },
+      { status: 500 }
+    );
   }
 }

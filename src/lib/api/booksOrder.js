@@ -150,3 +150,53 @@ export const libRianBooksOrderList = async (libId) => {
 
   return await res.json();
 };
+
+
+export const updateBorrowStatus = async (id, status) => {
+  const res = await fetch(`${baseUrl}/api/orderBooksStatus/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      borrowStatus: status,
+    }),
+  });
+
+  return await res.json();
+};
+
+export const singleOrderDetailes = async (orderId) => {
+  const res = await fetch(
+    `${baseUrl}/api/orderBooks/${orderId}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    }
+  );
+
+  return await res.json();
+};
+
+export const BooksReviewSubmit = async (reviewData) => {
+  const res = await fetch(`${baseUrl}/api/booksReview`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(reviewData),
+  });
+
+  return await res.json();
+};
+
+export const checkBookReview = async (orderId) => {
+  const res = await fetch(`${baseUrl}/api/booksReview/check/${orderId}`, {
+    cache: "no-store",
+  });
+
+  return await res.json();
+};

@@ -10,9 +10,7 @@ const MyBooksOrdersPage = async () => {
     // Fetch order list safely
     let orderListData = [];
     if (userId) {
-      orderListData = await userOrderList(userId) || [];      
-    console.log(orderListData);
-    
+      orderListData = await userOrderList(userId) || [];
     }
     
     return (

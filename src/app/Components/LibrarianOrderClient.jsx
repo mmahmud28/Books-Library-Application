@@ -1,24 +1,26 @@
 'use client';
 
 import React, { useState } from 'react';
-import { 
-  BookOpen, 
-  Calendar, 
-  Clock, 
-  CreditCard, 
-  Search, 
-  User, 
-  Phone, 
-  MapPin, 
+import {
+  BookOpen,
+  Calendar,
+  Clock,
+  CreditCard,
+  Search,
+  User,
+  Phone,
+  MapPin,
   AlertCircle,
   FileText,
   CheckCircle2,
   XCircle,
-  RefreshCw,
   ShieldCheck,
   Tag,
-  Banknote
+  Banknote,
+  Loader2
 } from 'lucide-react';
+import { updateBorrowStatus } from '@/lib/api/booksOrder';
+import { toast } from 'react-hot-toast'; // অথবা আপনার প্রজেক্টের নোটিফিকেশন প্যাকেজ
 
 const LibrarianOrderClient = ({ initialOrders = [] }) => {
   const [orders, setOrders] = useState(initialOrders);
@@ -29,7 +31,7 @@ const LibrarianOrderClient = ({ initialOrders = [] }) => {
   // Filter orders based on Tab and Search term
   const filteredOrders = orders.filter((order) => {
     const term = searchTerm.toLowerCase();
-    const matchesSearch = 
+    const matchesSearch =
       order?.borrowerName?.toLowerCase().includes(term) ||
       order?.email?.toLowerCase().includes(term) ||
       order?.booksName?.toLowerCase().includes(term) ||
@@ -42,57 +44,50 @@ const LibrarianOrderClient = ({ initialOrders = [] }) => {
     if (activeTab === 'pending_payment') return order?.paymentStatus === 'pending' && order?.borrowStatus !== 'cancelled';
     if (activeTab === 'paid') return order?.paymentStatus === 'paid' && order?.borrowStatus !== 'cancelled';
     if (activeTab === 'cancelled') return order?.borrowStatus === 'cancelled';
-    
+
     return true;
   });
 
-  // Calculate dynamic stats for Librarian
+  // Dynamic stats calculation
   const totalOrders = orders.length;
   const pendingCount = orders.filter(o => o.paymentStatus === 'pending' && o.borrowStatus !== 'cancelled').length;
   const paidCount = orders.filter(o => o.paymentStatus === 'paid' && o.borrowStatus !== 'cancelled').length;
   const cancelledCount = orders.filter(o => o.borrowStatus === 'cancelled').length;
 
-  // Calculate Total Revenue (excluding cancelled orders)
   const totalRevenue = orders
     .filter(o => o.borrowStatus !== 'cancelled')
     .reduce((sum, order) => sum + (Number(order.booksPrice) || 0), 0);
 
-  // Handle Status Updates (Payment / Borrow / Cancel)
-  const handleUpdateStatus = async (orderId, newPaymentStatus, newBorrowStatus) => {
+  // 🚀 স্ট্যাটাস আপডেট করার সঠিক হ্যান্ডলার
+  const handleBorrowStatusUpdate = async (orderId, newStatus) => {
     try {
       setLoadingId(orderId);
 
-      // Call API Endpoint to update status in DB
-      const res = await fetch(`/api/orders/update-status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderId,
-          paymentStatus: newPaymentStatus,
-          borrowStatus: newBorrowStatus
-        })
-      });
+      // Backend API Call
+      const result = await updateBorrowStatus(orderId, newStatus);
 
-      const data = await res.json();
+      if (result.success || result.acknowledged) {
+        toast.success(`অর্ডারের স্ট্যাটাস সফলভাবে '${newStatus}' আপডেট হয়েছে!`);
 
-      if (res.ok || data.success) {
-        // Optimistic UI update
-        setOrders(prev => prev.map(order => {
-          if (order._id === orderId) {
-            return {
-              ...order,
-              paymentStatus: newPaymentStatus ?? order.paymentStatus,
-              borrowStatus: newBorrowStatus ?? order.borrowStatus
-            };
-          }
-          return order;
-        }));
+        // UI Optimistic State Update
+        setOrders((prev) =>
+          prev.map((order) =>
+            order._id === orderId
+              ? { 
+                  ...order, 
+                  borrowStatus: newStatus,
+                  // approved/delivered হলে পেমেন্ট স্ট্যাটাস স্বয়ংক্রিয়ভাবে paid করার অপশন
+                  paymentStatus: (newStatus === 'approved' || newStatus === 'delivered') ? 'paid' : order.paymentStatus 
+                }
+              : order
+          )
+        );
       } else {
-        alert(data.message || 'স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে।');
+        toast.error(result.message || 'স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে।');
       }
     } catch (error) {
-      console.error('Update Error:', error);
-      alert('সার্ভারে সমস্যা হয়েছে, আবার চেষ্টা করুন।');
+      console.error('Update Status Error:', error);
+      toast.error('সার্ভারে সমস্যা হয়েছে, আবার চেষ্টা করুন।');
     } finally {
       setLoadingId(null);
     }
@@ -101,7 +96,7 @@ const LibrarianOrderClient = ({ initialOrders = [] }) => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8 font-sans selection:bg-indigo-500 selection:text-white">
       <div className="max-w-7xl mx-auto space-y-8">
-        
+
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/80 pb-6">
           <div>
@@ -119,8 +114,6 @@ const LibrarianOrderClient = ({ initialOrders = [] }) => {
 
         {/* Dynamic Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          
-          {/* Total Revenue Card */}
           <div className="group relative overflow-hidden rounded-2xl bg-slate-900/60 p-5 border border-slate-800/80 backdrop-blur-xl transition-all duration-300 hover:border-violet-500/40 hover:-translate-y-1">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-violet-500"></div>
             <div className="flex items-center justify-between">
@@ -189,8 +182,6 @@ const LibrarianOrderClient = ({ initialOrders = [] }) => {
 
         {/* Tabs & Search Header */}
         <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-slate-900/40 p-4 rounded-2xl border border-slate-800/80 backdrop-blur-md">
-          
-          {/* Navigation Tabs */}
           <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
             {[
               { id: 'all', label: 'সব অর্ডার', count: totalOrders },
@@ -217,7 +208,6 @@ const LibrarianOrderClient = ({ initialOrders = [] }) => {
             ))}
           </div>
 
-          {/* Search Box */}
           <div className="relative w-full md:w-80">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
@@ -266,15 +256,13 @@ const LibrarianOrderClient = ({ initialOrders = [] }) => {
                         </div>
                       )}
 
-                      {/* Gradient Overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent"></div>
 
-                      {/* Top Floating Badges */}
                       <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
                         <span className="text-[10px] font-mono text-slate-300 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded-md border border-slate-700/60">
                           ID: #{order._id?.slice(-6)}
                         </span>
-                        
+
                         <div className="flex gap-1.5">
                           <span className={`px-2.5 py-0.5 text-[11px] font-semibold rounded-full border backdrop-blur-md capitalize ${
                             order.paymentStatus === 'paid'
@@ -286,7 +274,6 @@ const LibrarianOrderClient = ({ initialOrders = [] }) => {
                         </div>
                       </div>
 
-                      {/* Book Title & Price on Image Bottom */}
                       <div className="absolute bottom-3 left-4 right-4 flex items-end justify-between gap-2">
                         <h3 className="text-base font-bold text-white line-clamp-1 group-hover:text-indigo-300 transition-colors">
                           {order.booksName || 'Untitled Book'}
@@ -302,7 +289,6 @@ const LibrarianOrderClient = ({ initialOrders = [] }) => {
 
                     {/* Customer & Borrow Info */}
                     <div className="p-5 space-y-4">
-                      {/* Customer Details */}
                       <div className="space-y-2">
                         <div className="flex items-start gap-2.5">
                           <User className="w-4 h-4 text-indigo-400 mt-0.5 shrink-0" />
@@ -325,11 +311,10 @@ const LibrarianOrderClient = ({ initialOrders = [] }) => {
                         </div>
                       </div>
 
-                      {/* Borrow Days Box */}
                       <div className="bg-slate-950/70 rounded-xl p-3 border border-slate-800/60 space-y-2">
                         <div className="flex justify-between items-center text-xs">
                           <span className="text-slate-500 flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5 text-indigo-400" /> মেয়ার্দ:
+                            <Clock className="w-3.5 h-3.5 text-indigo-400" /> মেয়াদ:
                           </span>
                           <span className="text-indigo-400 font-bold bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">
                             {order.borrowDays} Days
@@ -339,7 +324,7 @@ const LibrarianOrderClient = ({ initialOrders = [] }) => {
                         {order.notes && (
                           <div className="flex items-start gap-1.5 text-xs text-slate-400 border-t border-slate-800/80 pt-2 mt-2">
                             <FileText className="w-3.5 h-3.5 text-slate-500 mt-0.5 shrink-0" />
-                            <span className="italic line-clamp-2">"{order.notes}"</span>
+                            <span className="italic line-clamp-2">{order.notes}</span>
                           </div>
                         )}
                       </div>
@@ -348,47 +333,31 @@ const LibrarianOrderClient = ({ initialOrders = [] }) => {
 
                   {/* Actions & Footer Section */}
                   <div className="p-4 bg-slate-950/50 border-t border-slate-800/80 space-y-3">
-                    {/* Action Buttons */}
                     {order.borrowStatus !== 'cancelled' ? (
-                      <div className="grid grid-cols-2 gap-2">
-                        {/* Toggle Payment Status Button */}
+                      <div className="grid grid-cols-3 gap-2">
+                        {/* 🛠️ বাটনের ইভেন্ট হ্যান্ডলার আপডেট করা হয়েছে */}
                         <button
                           disabled={isLoading}
-                          onClick={() => handleUpdateStatus(
-                            order._id, 
-                            order.paymentStatus === 'pending' ? 'paid' : 'pending',
-                            order.paymentStatus === 'pending' ? 'approved' : 'pending_payment'
-                          )}
-                          className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-semibold transition-all duration-200 ${
-                            order.paymentStatus === 'pending'
-                              ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/20'
-                              : 'bg-amber-600/80 hover:bg-amber-600 text-white'
-                          }`}
+                          onClick={() => handleBorrowStatusUpdate(order._id, "approved")}
+                          className="px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-800 text-white transition-colors flex items-center justify-center gap-1"
                         >
-                          {isLoading ? (
-                            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                          ) : order.paymentStatus === 'pending' ? (
-                            <>
-                              <CheckCircle2 className="w-3.5 h-3.5" /> Mark as Paid
-                            </>
-                          ) : (
-                            <>
-                              <Clock className="w-3.5 h-3.5" /> Mark Pending
-                            </>
-                          )}
+                          {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Approve'}
                         </button>
 
-                        {/* Cancel Order Button */}
                         <button
                           disabled={isLoading}
-                          onClick={() => {
-                            if (confirm('আপনি কি সত্যিই এই অর্ডারটি বাতিল করতে চান?')) {
-                              handleUpdateStatus(order._id, order.paymentStatus, 'cancelled');
-                            }
-                          }}
-                          className="flex items-center justify-center gap-1.5 py-2 px-3 bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white border border-rose-500/20 rounded-xl text-xs font-semibold transition-all duration-200"
+                          onClick={() => handleBorrowStatusUpdate(order._id, "cancelled")}
+                          className="px-3 py-2 rounded-xl text-xs font-semibold bg-rose-600 hover:bg-rose-500 disabled:bg-rose-800 text-white transition-colors flex items-center justify-center gap-1"
                         >
-                          <XCircle className="w-3.5 h-3.5" /> Cancel Order
+                          {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Cancel'}
+                        </button>
+
+                        <button
+                          disabled={isLoading}
+                          onClick={() => handleBorrowStatusUpdate(order._id, "delivered")}
+                          className="px-3 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-800 text-white transition-colors flex items-center justify-center gap-1"
+                        >
+                          {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Delivered'}
                         </button>
                       </div>
                     ) : (

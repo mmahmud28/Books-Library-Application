@@ -123,3 +123,30 @@ export const checkAlreadyOrdered = async (userId, bookId) => {
         };
     }
 };
+
+export const userOrderList = async (userId) => {
+  const res = await fetch(`${baseUrl}/api/userOrders/${userId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  return await res.json();
+};
+
+
+export const libRianBooksOrderList = async (libId) => {
+  const res = await fetch(
+    `${baseUrl}/api/librarianOrders/${libId}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    }
+  );
+
+  return await res.json();
+};

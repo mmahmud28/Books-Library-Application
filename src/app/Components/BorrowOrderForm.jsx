@@ -53,6 +53,10 @@ export default function BorrowOrderForm({ safeBook, userData }) {
         notes: data.notes || "",
         libraryId: safeBook?.addById || null,
         userId: userDataa?.id || null,
+        booksName: safeBook?.title || null,
+        booksImage: safeBook?.coverImage || null,
+        booksPrice: safeBook?.price || 100,
+       
     };
 
     const result = await createBorrowRequest(borrowRequest);

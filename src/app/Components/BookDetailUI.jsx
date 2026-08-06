@@ -36,10 +36,7 @@ export default function BookDetailUI({ safeBook, userData }) {
         return;
       }
 
-      try {
-        console.log("Checking order...");
-        console.log("User ID:", userId);
-        console.log("Book ID:", bookId);
+      try {      
 
         const result = await checkAlreadyOrdered(userId, bookId);
 

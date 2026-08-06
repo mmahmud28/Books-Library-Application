@@ -16,15 +16,18 @@ import {
   Sparkles,
   CheckCircle2,
   Star,
-  Loader2
+  Loader2,
+  ArrowRight
 } from 'lucide-react';
 import Link from 'next/link';
 import { checkBookReview } from '@/lib/api/booksOrder';
+import { useRouter } from "next/navigation";
 
-// প্রতিটি অর্ডারের রিভিউ স্ট্যাটাস চেক করার জন্য পৃথক কার্ড কম্পোনেন্ট
+// Order Card Component
 const OrderCard = ({ order }) => {
   const [isReviewed, setIsReviewed] = useState(false);
   const [checkingReview, setCheckingReview] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     let isMounted = true;
@@ -52,8 +55,16 @@ const OrderCard = ({ order }) => {
     };
   }, [order._id, order.borrowStatus]);
 
+  const handelMakePayment = (booksId) => {
+    const bookId = booksId;
+    router.push(`/dashboard/readers/books/booksOrder/payment/${bookId}`);
+  };
+
   return (
-    <div className="group relative bg-slate-900/60 hover:bg-slate-900/90 border border-slate-800/80 hover:border-indigo-500/50 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1.5 flex flex-col justify-between">
+    <div 
+      onClick={() => handelMakePayment(order._id)} 
+      className="group relative bg-slate-900/60 hover:bg-slate-900/90 border border-slate-800/80 hover:border-indigo-500/50 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1.5 flex flex-col justify-between cursor-pointer"
+    >
       <div>
         {/* Book Image Showcase Area */}
         <div className="relative h-48 w-full bg-slate-950 overflow-hidden border-b border-slate-800/80">
@@ -73,7 +84,7 @@ const OrderCard = ({ order }) => {
             </div>
           )}
 
-          {/* Gradient Overlay for Text Readability */}
+          {/* Gradient Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent"></div>
 
           {/* Top Badges */}
@@ -90,7 +101,7 @@ const OrderCard = ({ order }) => {
             </span>
           </div>
 
-          {/* Book Title & Price on Image Bottom */}
+          {/* Book Title & Price */}
           <div className="absolute bottom-3 left-4 right-4 flex items-end justify-between gap-2">
             <h3 className="text-lg font-bold text-white line-clamp-1 group-hover:text-indigo-300 transition-colors">
               {order.booksName || 'Untitled Book'}
@@ -129,7 +140,7 @@ const OrderCard = ({ order }) => {
           <div className="bg-slate-950/70 rounded-xl p-3 border border-slate-800/60 space-y-2">
             <div className="flex justify-between items-center text-xs">
               <span className="text-slate-500 flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5 text-indigo-400" /> ধার নেওয়ার মেয়াদ:
+                <Clock className="w-3.5 h-3.5 text-indigo-400" /> ধার নেওয়ার মেয়াদ:
               </span>
               <span className="text-indigo-400 font-bold bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">
                 {order.borrowDays} Days
@@ -146,8 +157,25 @@ const OrderCard = ({ order }) => {
         </div>
       </div>
 
-      {/* Footer Bar & Review Action Button */}
+      {/* Footer Bar & Action Buttons */}
       <div className="px-5 py-3.5 bg-slate-950/40 border-t border-slate-800/60 space-y-3">
+        
+        {/* Pending Payment Button */}
+        {order.paymentStatus === 'pending' && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation(); // Prevents double click handling with parent div
+              handelMakePayment(order._id);
+            }}
+            className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold rounded-xl text-xs transition-all shadow-lg shadow-amber-500/20 active:scale-95"
+          >
+            <CreditCard className="w-4 h-4" />
+            <span>Pay Now (পেমেন্ট করুন)</span>
+            <ArrowRight className="w-3.5 h-3.5 ml-auto" />
+          </button>
+        )}
+
+        {/* Delivered & Review Options */}
         {order.borrowStatus === "delivered" && (
           <div>
             {checkingReview ? (
@@ -158,6 +186,7 @@ const OrderCard = ({ order }) => {
             ) : isReviewed ? (
               <Link
                 href={`/dashboard/readers/books/review/${order._id}`}
+                onClick={(e) => e.stopPropagation()}
                 className="flex items-center justify-center gap-1.5 w-full py-2 px-3 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 rounded-xl text-xs font-semibold transition-all"
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
@@ -166,6 +195,7 @@ const OrderCard = ({ order }) => {
             ) : (
               <Link
                 href={`/dashboard/readers/books/review/${order._id}`}
+                onClick={(e) => e.stopPropagation()}
                 className="flex items-center justify-center gap-1.5 w-full py-2 px-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold transition-all shadow-md shadow-indigo-600/20"
               >
                 <Star className="w-3.5 h-3.5 fill-current" />
@@ -197,7 +227,6 @@ const OrderListClient = ({ initialOrders = [] }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
-  // Filter orders based on search (name, email, book name, phone, order ID) and payment status
   const filteredOrders = initialOrders.filter((order) => {
     const term = searchTerm.toLowerCase();
     const matchesSearch =
@@ -214,7 +243,6 @@ const OrderListClient = ({ initialOrders = [] }) => {
     return matchesSearch && matchesStatus;
   });
 
-  // Calculate dynamic summary stats
   const totalOrders = initialOrders.length;
   const paidPayments = initialOrders.filter(o => o.paymentStatus === 'paid').length;
   const pendingPayments = initialOrders.filter(o => o.paymentStatus === 'pending').length;
@@ -239,9 +267,8 @@ const OrderListClient = ({ initialOrders = [] }) => {
           </div>
         </div>
 
-        {/* Dynamic Summary Cards */}
+        {/* Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {/* Card 1: Total Orders */}
           <div className="group relative overflow-hidden rounded-2xl bg-slate-900/60 p-5 border border-slate-800/80 backdrop-blur-xl transition-all duration-300 hover:border-blue-500/40 hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div>
             <div className="flex items-center justify-between">
@@ -255,7 +282,6 @@ const OrderListClient = ({ initialOrders = [] }) => {
             </div>
           </div>
 
-          {/* Card 2: Paid Payments */}
           <div className="group relative overflow-hidden rounded-2xl bg-slate-900/60 p-5 border border-slate-800/80 backdrop-blur-xl transition-all duration-300 hover:border-emerald-500/40 hover:shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-emerald-500"></div>
             <div className="flex items-center justify-between">
@@ -269,7 +295,6 @@ const OrderListClient = ({ initialOrders = [] }) => {
             </div>
           </div>
 
-          {/* Card 3: Pending Payments */}
           <div className="group relative overflow-hidden rounded-2xl bg-slate-900/60 p-5 border border-slate-800/80 backdrop-blur-xl transition-all duration-300 hover:border-amber-500/40 hover:shadow-xl hover:shadow-amber-500/10 hover:-translate-y-1">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-amber-500"></div>
             <div className="flex items-center justify-between">
@@ -283,7 +308,6 @@ const OrderListClient = ({ initialOrders = [] }) => {
             </div>
           </div>
 
-          {/* Card 4: Total Book Value */}
           <div className="group relative overflow-hidden rounded-2xl bg-slate-900/60 p-5 border border-slate-800/80 backdrop-blur-xl transition-all duration-300 hover:border-purple-500/40 hover:shadow-xl hover:shadow-purple-500/10 hover:-translate-y-1">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-purple-500"></div>
             <div className="flex items-center justify-between">
@@ -300,19 +324,17 @@ const OrderListClient = ({ initialOrders = [] }) => {
 
         {/* Filter & Search Toolbar */}
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-slate-900/40 p-4 rounded-2xl border border-slate-800/80 backdrop-blur-md">
-          {/* Search Box */}
           <div className="relative w-full sm:w-96">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
-              placeholder="বইয়ের নাম, গ্রাহক, ইমেইল বা আইডি দিয়ে খুঁজুন..."
+              placeholder="বইয়ের নাম, গ্রাহক, ইমেইল বা আইডি দিয়ে খুঁজুন..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-slate-950/80 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
             />
           </div>
 
-          {/* Filter Buttons */}
           <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
             {['all', 'paid', 'pending'].map((status) => (
               <button

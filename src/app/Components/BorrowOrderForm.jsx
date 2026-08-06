@@ -37,34 +37,45 @@ export default function BorrowOrderForm({ safeBook, userData }) {
   const userDataa = userData || {};  
 
 
-  const onBorrowAction = async (e) => {
+ const onBorrowAction = async (e) => {
     e.preventDefault();
 
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
 
     const borrowRequest = {
-      bookId: data.bookId,
-      borrowerName: data.borrowerName,
-      email: data.email,
-      phone: data.phone,
-      address: data.address,
-      borrowDays: Number(data.borrowDays),
-      notes: data.notes || "",
-      libraryId: safeBook?.addById || null,
-      userId: userDataa?.id || null,
+        bookId: safeBook?._id || null,
+        borrowerName: data.borrowerName,
+        email: data.email,
+        phone: data.phone,
+        address: data.address,
+        borrowDays: Number(data.borrowDays),
+        notes: data.notes || "",
+        libraryId: safeBook?.addById || null,
+        userId: userDataa?.id || null,
     };
-
 
     const result = await createBorrowRequest(borrowRequest);
 
-    if (result.success) {
-      toast.success('Borrow request placed successfully!');
-      router.push(
-        `/dashboard/readers/books/booksOrder/payment/${result.insertedId}`
-      );
+    // একই বই আগে অর্ডার করা থাকলে
+    if (result.status === 409) {
+        toast.error("You have already requested this book.");
+        return;
     }
-  };
+
+    // অন্য কোনো error
+    if (!result.success) {
+        toast.error(result.message || "Failed to place borrow request.");
+        return;
+    }
+
+    // সফল হলে
+    toast.success("Borrow request placed successfully!");
+
+    router.push(
+        `/dashboard/readers/books/booksOrder/payment/${result.insertedId}`
+    );
+};
 
   const durationOptions = [
     { value: '7', label: '7 Days', badge: '1 Week' },

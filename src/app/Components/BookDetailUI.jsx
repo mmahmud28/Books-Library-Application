@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from "next/image";
 import { motion } from 'framer-motion';
 import {
@@ -12,13 +12,56 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from "next/navigation";
+import { checkAlreadyOrdered } from '@/lib/api/booksOrder';
+import toast from 'react-hot-toast';
 
 
-export default function BookDetailUI({ safeBook }) {
+export default function BookDetailUI({ safeBook, userData }) {
   const [isWishlisted, setIsWishlisted] = useState(false);
-  const [isCartAdded, setIsCartAdded] = useState(false);
+  const [alreadyOrdered, setAlreadyOrdered] = useState(false);
+  const [checkingOrder, setCheckingOrder] = useState(true);
 
   const router = useRouter();
+
+  const userId = userData?.id;
+  const bookId = safeBook?._id;
+
+  console.log(userId, bookId);
+
+  useEffect(() => {
+    const checkOrder = async () => {
+      // ID না পাওয়া গেলে check করার দরকার নেই
+      if (!userId || !bookId) {
+        setCheckingOrder(false);
+        return;
+      }
+
+      try {
+        console.log("Checking order...");
+        console.log("User ID:", userId);
+        console.log("Book ID:", bookId);
+
+        const result = await checkAlreadyOrdered(userId, bookId);
+
+        console.log("Already Ordered Result:", result);
+
+        if (result?.success) {
+          setAlreadyOrdered(result.alreadyOrdered === true);
+        } else {
+          setAlreadyOrdered(false);
+          console.error("Order check failed:", result?.message);
+        }
+      } catch (error) {
+        console.error("Error checking existing order:", error);
+        setAlreadyOrdered(false);
+      } finally {
+        setCheckingOrder(false);
+      }
+    };
+
+    checkOrder();
+  }, [userId, bookId]);
+
 
 
   const containerVariants = {
@@ -35,8 +78,6 @@ export default function BookDetailUI({ safeBook }) {
     visible: { opacity: 1, y: 0 }
   };
 
-  console.log(safeBook);
-  console.log(safeBook.coverImage);
 
   //on back
   const handleBackClick = () => {
@@ -45,7 +86,32 @@ export default function BookDetailUI({ safeBook }) {
   }
 
   const handleBorrow = () => {
-    router.push(`/dashboard/readers/books/booksOrder/${safeBook._id}`);
+    // Already ordered
+    if (alreadyOrdered) {
+      toast.error("You have already requested this book.");
+      return;
+    }
+
+    // এখনো checking হচ্ছে
+    if (checkingOrder) {
+      toast.info("Please wait, checking your previous request...");
+      return;
+    }
+
+    // User ID না থাকলে
+    if (!userId) {
+      toast.error("Please login first.");
+      return;
+    }
+
+    // Book ID না থাকলে
+    if (!bookId) {
+      toast.error("Book information not found.");
+      return;
+    }
+
+    // Borrow page
+    router.push(`/dashboard/readers/books/booksOrder/${bookId}`);
   };
 
 
@@ -135,9 +201,19 @@ export default function BookDetailUI({ safeBook }) {
 
                 <div className="flex flex-wrap gap-3">
                   {/* Request Delivery */}
-                  <button onClick={handleBorrow} className="btn btn-primary rounded-xl px-6">
-                    <BookOpen className="w-4 h-4" />
-                    Request Delivery
+                  <button
+                    onClick={handleBorrow}
+                    disabled={checkingOrder || alreadyOrdered}
+                    className={`btn rounded-xl px-6 ${alreadyOrdered ? "btn-disabled" : "btn-primary"
+                      }`}
+                  >
+                    {checkingOrder ? (
+                      <>Checking...</>
+                    ) : alreadyOrdered ? (
+                      <>Already Requested</>
+                    ) : (
+                      <>Request Delivery</>
+                    )}
                   </button>
 
                   {/* Wishlist */}

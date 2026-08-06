@@ -17,7 +17,7 @@ export async function POST(req) {
           quantity: 1,
         },
       ],
-      success_url: `${origin}/dashboard/readers/books/booksOrder/success?orderId=${orderId}&session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${origin}/dashboard/readers/books/booksOrder/success?orderId=${orderId}`,
       cancel_url: `${origin}/dashboard/readers/books/booksOrder/payment/${orderId}`,
     });
 

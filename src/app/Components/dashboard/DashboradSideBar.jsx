@@ -1,17 +1,47 @@
-import { LayoutSideContentLeft, Bell, Envelope, Gear, House, Magnifier, Person } from "@gravity-ui/icons";
-import { Button, Drawer } from "@heroui/react";
+import { getUserSession } from "@/lib/core/session";
+import { Bell, Envelope, Gear, House, Magnifier, Person } from "@gravity-ui/icons";
+import { Drawer } from "@heroui/react";
 import Link from "next/link";
 
-export function DashBoardSidebar() {
-    const navItems = [
+export async function DashBoardSidebar() {
+
+
+    const user = await getUserSession();
+    const userRole = user?.role || "user";
+
+
+
+    const userNavLinks = [
         { icon: House, label: "Dashboard", href: "/dashboard/readers" },
         { icon: Magnifier, label: "Books", href: "/dashboard/readers/books" },
-        { icon: Bell, label: "My Reading List", href: "/dashboard/reading-list" },
-        { icon: Envelope, label: "My Reviews", href: "/dashboard/reviews" },
-        { icon: Person, label: "Publisher Books", href: "/dashboard/readers/books/publisherbooks" },
-         { icon: Person, label: "Profile", href: "/dashboard/profile" },
-        { icon: Gear, label: "Settings", href: "/dashboard/settings" },
-    ];
+        { icon: Envelope, label: "My Reviews", href: "/dashboard/readers/books/publisherbooks" },
+        { icon: Person, label: "Publisher Books", href: "/dashboard/readers/my-orders" },
+    ]
+
+    const librarianNavLinks = [
+        { icon: House, label: "Dashboard", href: "/dashboard/librarian" },
+        { icon: Magnifier, label: "Books", href: "/dashboard/librarian/books" },
+        { icon: Bell, label: "My Reading List", href: "/dashboard/librarian/books/add" },
+        { icon: Envelope, label: "My Reviews", href: "/dashboard/librarian/booksOrder" },
+    ]
+
+    const adminNavLinks = [
+        { icon: House, label: "Dashboard", href: "/dashboard/admin" },
+        { icon: Magnifier, label: "Books", href: "/dashboard/admin/books" },
+        { icon: Bell, label: "My Reading List", href: "/dashboard/admin/books/publisherbooks" },
+        { icon: Envelope, label: "My Reviews", href: "/dashboard/admin/userList" },
+    ]
+
+
+    //
+    const navLinksMap = {
+        user: userNavLinks,
+        librarian: librarianNavLinks,
+        admin: adminNavLinks,
+    };
+
+
+    const navItems = navLinksMap[userRole] || userNavLinks;
 
     const navContent = <nav className="flex flex-col gap-1">
         {navItems.map((item) => (
@@ -33,7 +63,7 @@ export function DashBoardSidebar() {
                 {navContent}
             </aside>
 
-            <Drawer>               
+            <Drawer>
 
                 <Drawer.Backdrop>
                     <Drawer.Content placement="left">

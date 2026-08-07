@@ -30,13 +30,22 @@ export default function Navbar() {
       name: "Browse Books",
       href: "/books",
       icon: <BookOpen width={18} height={18} />,
-    },
-    {
-      name: "Dashboard",
-      href: "/dashboard",
-      icon: <LayoutList width={18} height={18} />,
-    }
+    }    
   ];
+
+  const dashBoardMenus = {
+    user: "/dashboard/readers",
+    librarian: '/dashboard/librarian',
+    admin: '/dashboard/admin'
+  }
+
+  if (user?.email) {
+    menus.push({
+      name: "Dashboard",
+      href: dashBoardMenus[user.role] || "/dashboard/readers",
+      icon: <LayoutList width={18} height={18} />,
+    })
+  }
 
   const handelsignOut = async () => {
     await signOut({

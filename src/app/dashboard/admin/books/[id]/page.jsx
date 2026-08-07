@@ -1,11 +1,11 @@
-import BookDetailUI from "@/app/Components/BookDetailUI";
+import LibrarianBookDetailPage from "@/app/Components/LibrarianBookDetailPage";
 import { getSingleBooks } from "@/lib/api/booksLoad";
 
 const BooksDeatiledPage = async ({ params }) => {
   const { id } = await params;
   const safeBook = await getSingleBooks(id);
 
-  return <BookDetailUI safeBook={safeBook} />;
+  return <LibrarianBookDetailPage safeBook={safeBook} />;
 };
 
-export default BooksDeatiledPage;
+export default BooksDeatiledPage; 

@@ -33,3 +33,25 @@ export const booksStatusUpdate = async (bookId) => {
 
     return await res.json();
 };
+
+
+export const userSummeryData = async (userId) => {
+    if (!userId) return null;
+
+    const res = await fetch(
+        `${baseUrl}/api/userSummary/${userId}`,
+        {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            cache: "no-store",
+        }
+    );
+
+    if (!res.ok) {
+        throw new Error("Failed to fetch user summary");
+    }
+
+    return await res.json();
+};

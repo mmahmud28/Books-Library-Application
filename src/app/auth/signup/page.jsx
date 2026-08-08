@@ -1,13 +1,17 @@
 "use client";
 import { signUp } from "@/lib/auth-client";
 import { Form } from "@heroui/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams, } from "next/navigation";
 import toast from "react-hot-toast";
 
 
 const SignUpPage = () => {
 
   const router = useRouter();
+
+
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get("redirect") || "/";
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -57,7 +61,7 @@ const SignUpPage = () => {
 
 
       if (!authError) {
-        router.push("/");
+        router.push(redirectUrl);
       }
 
 
@@ -249,7 +253,7 @@ const SignUpPage = () => {
             <p className="text-center text-sm mt-4">
               Already have an account?
               <a
-                href="/login"
+                href={`/auth/login?redirect=${redirectUrl}`}
                 className="link link-primary font-semibold ml-1"
               >
                 Login

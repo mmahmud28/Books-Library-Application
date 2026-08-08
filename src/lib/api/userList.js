@@ -55,3 +55,45 @@ export const userSummeryData = async (userId) => {
 
     return await res.json();
 };
+
+export const librarianSummeryData = async (userId) => {
+    if (!userId) return null;
+
+    const res = await fetch(
+        `${baseUrl}/api/librarianSummary/${userId}`,
+        {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            cache: "no-store",
+        }
+    );
+
+    if (!res.ok) {
+        throw new Error("Failed to fetch librarian summary");
+    }
+
+    return await res.json();
+};
+
+export const adminSummeryData = async () => {
+    const res = await fetch(
+        `${baseUrl}/api/adminSummary`,
+        {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            cache: "no-store",
+        }
+    );
+
+    if (!res.ok) {
+        throw new Error(
+            "Failed to fetch admin summary"
+        );
+    }
+
+    return await res.json();
+};

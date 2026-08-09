@@ -5,6 +5,9 @@ const BooksDeatiledPage = async ({ params }) => {
   const { id } = await params;
   const safeBook = await getSingleBooks(id);
 
+  console.log(safeBook);
+  
+
   return <LibrarianBookDetailPage safeBook={safeBook} />;
 };
 

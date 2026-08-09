@@ -170,7 +170,7 @@ const PublisherBooks = async ({ params }) => {
                   {/* Action Link */}
                   <div className="pt-2 border-t border-white/5 flex items-center justify-end">
                     <Link
-                      href={`/dashboard/readers/books/${book._id}`}
+                      href={`/dashboard/admin/books/${book._id}`}
                       className="px-4 py-1.5 text-xs rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-500 shadow-lg shadow-indigo-600/20 transition-all"
                     >
                       Details →

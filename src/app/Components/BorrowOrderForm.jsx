@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, User, Mail, Phone, MapPin,
   CheckCircle2, ShieldCheck, Sparkles,
-  Clock, Send, Loader2, BookmarkCheck, Building, Tag, FileText,
+  Clock, Send, Loader2, BookmarkCheck, Tag, FileText,
   BookOpen
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -43,6 +43,7 @@ export default function BorrowOrderForm({ safeBook, userData }) {
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
 
+    // Data payload payload properly mapped
     const borrowRequest = {
       bookId: safeBook?._id || null,
       borrowerName: data.borrowerName,
@@ -52,10 +53,12 @@ export default function BorrowOrderForm({ safeBook, userData }) {
       borrowDays: Number(data.borrowDays),
       notes: data.notes || "",
       libraryId: safeBook?.addById || null,
-      userId: userDataa?.id || null,
+      userId: userDataa?.id || userDataa?._id || null,
       booksName: safeBook?.title || null,
       booksImage: safeBook?.coverImage || null,
       booksPrice: safeBook?.price || 100,
+      author: safeBook?.author || null,
+      category: safeBook?.category || null,
     };
 
     startTransition(async () => {
@@ -73,9 +76,15 @@ export default function BorrowOrderForm({ safeBook, userData }) {
         }
 
         toast.success("Borrow request placed successfully!");
-        router.push(
-          `/dashboard/readers/books/booksOrder/payment/${result.insertedId}`
-        );
+        
+        // If API returns insertedId redirect to payment page, else show success state
+        if (result?.insertedId) {
+          router.push(
+            `/dashboard/readers/books/booksOrder/payment/${result.insertedId}`
+          );
+        } else {
+          setIsSubmitted(true);
+        }
       } catch (error) {
         console.error("Error processing request:", error);
         toast.error("An unexpected error occurred. Please try again.");
@@ -308,6 +317,7 @@ export default function BorrowOrderForm({ safeBook, userData }) {
                           type="tel"
                           name="phone"
                           required
+                          defaultValue={userDataa?.phone || ""}
                           placeholder="+880 17XXXXXXXX"
                           className="w-full bg-slate-950/70 border border-slate-800 rounded-xl pl-11 pr-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
                         />
@@ -350,6 +360,7 @@ export default function BorrowOrderForm({ safeBook, userData }) {
                         type="text"
                         name="address"
                         required
+                        defaultValue={userDataa?.address || ""}
                         placeholder="Campus, Department or House Address"
                         className="w-full bg-slate-950/70 border border-slate-800 rounded-xl pl-11 pr-4 py-3 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
                       />

@@ -9,22 +9,27 @@ import {
   Calendar, Package, Sparkles, UserCheck,
   BookOpen, Heart, CheckCircle2,
   Info, ExternalLink, ShieldCheck, Share2,
-  Clock, Tag
+  Clock, Tag, Star, MessageSquare
 } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { checkAlreadyOrdered } from '@/lib/api/booksOrder';
 import toast from 'react-hot-toast';
 
-export default function BookDetailUI({ safeBook, userData }) {
+export default function BookDetailUI({ safeBook = {}, reviews = [], reviewCount = 0, userData = null }) {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [alreadyOrdered, setAlreadyOrdered] = useState(false);
   const [checkingOrder, setCheckingOrder] = useState(true);
 
   const router = useRouter();
 
-  const userId = userData?.id;
+  const userId = userData?.id || userData?._id;
   const bookId = safeBook?._id;
+
+  // গড় রেটিং হিসাব (Average Rating Calculation)
+  const averageRating = reviews?.length > 0
+    ? (reviews.reduce((acc, curr) => acc + (Number(curr.rating) || 0), 0) / reviews.length).toFixed(1)
+    : 0;
 
   useEffect(() => {
     const checkOrder = async () => {
@@ -66,7 +71,7 @@ export default function BookDetailUI({ safeBook, userData }) {
   };
 
   const handleBackClick = () => {
-    if (window.history.length > 1) {
+    if (typeof window !== 'undefined' && window.history.length > 1) {
       window.history.back();
     } else {
       router.push('/books');
@@ -98,6 +103,7 @@ export default function BookDetailUI({ safeBook, userData }) {
 
     if (!userId) {
       toast.error("Please login first.");
+      redirect(`/auth/login?redirect=/dashboard/readers/books/booksOrder/${bookId}`);
       return;
     }
 
@@ -107,6 +113,16 @@ export default function BookDetailUI({ safeBook, userData }) {
     }
 
     router.push(`/dashboard/readers/books/booksOrder/${bookId}`);
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   };
 
   return (
@@ -178,10 +194,10 @@ export default function BookDetailUI({ safeBook, userData }) {
             {/* Right Column: Book Main Info */}
             <div className="md:col-span-7 space-y-6 text-left">
               
-              {/* Badges */}
+              {/* Badges & Rating Summary */}
               <div className="flex flex-wrap items-center gap-2">
                 {safeBook?.status && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold capitalize">
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     {safeBook.status}
                   </span>
@@ -190,9 +206,14 @@ export default function BookDetailUI({ safeBook, userData }) {
                 {safeBook?.condition && (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold">
                     <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-                    {safeBook.condition}
+                    {safeBook.condition} Condition
                   </span>
                 )}
+
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold">
+                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                  {averageRating > 0 ? `${averageRating} (${reviewCount} ${reviewCount === 1 ? 'Review' : 'Reviews'})` : 'No Ratings'}
+                </span>
               </div>
 
               {/* Title & Author */}
@@ -229,7 +250,7 @@ export default function BookDetailUI({ safeBook, userData }) {
 
               {/* Price Tag */}
               <div className="p-4 rounded-2xl bg-gradient-to-r from-slate-950 to-indigo-950/30 border border-indigo-500/20 flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Borrow Price</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Borrow Fee</span>
                 <span className="text-3xl font-black text-indigo-400">
                   {safeBook?.price ? `৳${safeBook.price}` : 'Free'}
                 </span>
@@ -294,7 +315,7 @@ export default function BookDetailUI({ safeBook, userData }) {
             <InfoGridCard icon={<Building2 className="w-4 h-4 text-pink-400" />} label="Publisher" value={safeBook?.publisher} />
             <InfoGridCard icon={<Globe className="w-4 h-4 text-emerald-400" />} label="Language" value={safeBook?.languages} />
             <InfoGridCard icon={<Calendar className="w-4 h-4 text-amber-400" />} label="Published Year" value={safeBook?.publishedYear} />
-            <InfoGridCard icon={<Package className="w-4 h-4 text-teal-400" />} label="Stock Availability" value={safeBook?.stockQuantity ? `${safeBook.stockQuantity} Copies Left` : 'Out of Stock'} />
+            <InfoGridCard icon={<Package className="w-4 h-4 text-teal-400" />} label="Stock Availability" value={safeBook?.stockQuantity ? `${safeBook.stockQuantity} Copies Available` : 'Out of Stock'} />
           </div>
 
           {/* Librarian / Added By Card */}
@@ -306,7 +327,7 @@ export default function BookDetailUI({ safeBook, userData }) {
                 </div>
                 <div>
                   <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">Added By Librarian</p>
-                  <p className="text-sm font-bold text-slate-200">{safeBook.addedBy}</p>
+                  <p className="text-sm font-bold text-slate-200 capitalize">{safeBook.addedBy}</p>
                 </div>
               </div>
               <Link
@@ -328,6 +349,85 @@ export default function BookDetailUI({ safeBook, userData }) {
           <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-none whitespace-pre-line">
             {safeBook?.description || 'No detailed description available for this title at the moment.'}
           </p>
+        </motion.div>
+
+        {/* Reader Reviews & Ratings Section */}
+        <motion.div variants={itemVariants} className="p-6 sm:p-10 border-t border-slate-800/80 bg-slate-950/60">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                <MessageSquare className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-white">Reader Reviews & Ratings</h2>
+                <p className="text-xs text-slate-400">Feedback from readers who borrowed this book</p>
+              </div>
+            </div>
+
+            <div className="px-3.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300">
+              {reviewCount} {reviewCount === 1 ? 'Review' : 'Reviews'}
+            </div>
+          </div>
+
+          {reviews && reviews.length > 0 ? (
+            <div className="space-y-4">
+              {reviews.map((rev) => (
+                <div
+                  key={rev._id}
+                  className="p-5 rounded-2xl bg-slate-900/70 border border-slate-800/90 hover:border-slate-700 transition-all duration-200"
+                >
+                  <div className="flex items-start justify-between gap-4 mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-bold text-white text-sm shadow-md overflow-hidden relative">
+                        {rev.userImage ? (
+                          <Image
+                            src={rev.userImage}
+                            alt={rev.userName || "User"}
+                            width={45}
+                            height={45}
+                            className="rounded-full object-cover w-full h-full"
+                          />
+                        ) : (
+                          <span>{(rev.borrowerName || rev.userName || 'U')[0]}</span>
+                        )}
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-200">{rev.borrowerName || rev.userName || 'Anonymous Reader'}</h4>
+                        <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
+                          <Clock className="w-3 h-3 text-slate-500" />
+                          <span>{formatDate(rev.createdAt)}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Dynamic Rating Stars */}
+                    <div className="flex items-center gap-1 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`w-3.5 h-3.5 ${
+                            star <= (rev.rating || 0)
+                              ? 'fill-amber-400 text-amber-400'
+                              : 'text-slate-700'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <p className="text-sm text-slate-300 leading-relaxed font-normal whitespace-pre-line">
+                    {rev.reviewText}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 px-4 rounded-2xl bg-slate-900/30 border border-slate-800/50 border-dashed">
+              <MessageSquare className="w-10 h-10 text-slate-600 mx-auto mb-3" />
+              <p className="text-sm font-semibold text-slate-400">No reviews yet for this book.</p>
+              <p className="text-xs text-slate-500 mt-1">Be the first to borrow and share your thoughts!</p>
+            </div>
+          )}
         </motion.div>
 
       </motion.div>

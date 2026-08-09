@@ -51,12 +51,13 @@ const AllLibrarianList = async () => {
                   <div className="flex items-center gap-3">
                     <div className="avatar">
                       <div className="w-14 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                        <Image
-                          src={librarian.image}
-                          alt={librarian.name}
-                          width={56}
-                          height={56}
+                        
+                        <img
+                          src={librarian?.image || "/default-avatar.png"}
+                          alt={librarian?.name || "Librarian Avatar"}
+                          className="w-[56px] h-[56px] rounded-full object-cover"                                                    
                         />
+
                       </div>
                     </div>
 

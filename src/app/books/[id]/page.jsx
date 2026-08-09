@@ -4,10 +4,25 @@ import { getUserSession } from "@/lib/core/session";
 
 const BooksDeatiledPage = async ({ params }) => {
   const { id } = await params;
-  const safeBook = await getSingleBooks(id);
+  const bookData = await getSingleBooks(id);
   const userData = await getUserSession();
 
-  return <PublicBookDetailUI safeBook={safeBook} userData={userData} />;
+  // API response থেকে বই, রেভিউ এবং রেভিউ কাউন্ট আলাদা করা হচ্ছে
+  const safeBook = bookData?.book || {};
+  const reviews = bookData?.reviews || [];
+  const reviewCount = bookData?.reviewCount || 0;
+
+  console.log(bookData);
+  
+
+  return (
+    <PublicBookDetailUI 
+      safeBook={safeBook} 
+      reviews={reviews} 
+      reviewCount={reviewCount} 
+      userData={userData} 
+    />
+  );
 };
 
 export default BooksDeatiledPage;

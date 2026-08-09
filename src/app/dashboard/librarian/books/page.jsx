@@ -61,7 +61,7 @@ const LibrarianAllBooksPage = () => {
 
         try {
             const res = await fetch(
-                `http://localhost:5000/api/books/status/${id}`,
+                `${process.env.NEXT_PUBLIC_BASE_URL}/api/books/status/${id}`,
                 {
                     method: "PATCH",
                     headers: {

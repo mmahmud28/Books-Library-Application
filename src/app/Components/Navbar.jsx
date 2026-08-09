@@ -30,7 +30,7 @@ export default function Navbar() {
       name: "Browse Books",
       href: "/books",
       icon: <BookOpen width={18} height={18} />,
-    }    
+    }
   ];
 
   const dashBoardMenus = {
@@ -106,12 +106,14 @@ export default function Navbar() {
           user ? (
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
-                <Image
-                  width={40}
-                  height={40}
-                  src={user.image || "/default-avatar.png"}
-                  alt={user.name}
-                  className="rounded-full border-2 border-primary object-cover"
+                
+                <img
+                  src={user?.image || "/default-avatar.png"}
+                  alt={user?.name || "User Avatar"}
+                  className="w-10 h-10 rounded-full border-2 border-primary object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = "/default-avatar.png";
+                  }}
                 />
 
                 <div className="hidden md:block">

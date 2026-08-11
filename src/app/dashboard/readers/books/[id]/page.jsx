@@ -12,7 +12,7 @@ const BooksDeatiledPage = async ({ params }) => {
   const reviews = bookData?.reviews || [];
   const reviewCount = bookData?.reviewCount || 0;
 
-  console.log(bookData);
+  
   
 
   return (

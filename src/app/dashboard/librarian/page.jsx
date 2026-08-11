@@ -18,7 +18,7 @@ const LibrianPage = async () => {
 
   const summaryData = await librarianSummeryData(userId);
 
-  console.log("Librarian Summary:", summaryData);
+  
 
   // Destructure Data safely
   const librarian = summaryData?.librarian;

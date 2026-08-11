@@ -7,7 +7,7 @@ import PublicBooksHeaderAndFilters from "../Components/PublicBooksHeaderAndFilte
 const BooksPage = async () => {
   const books = (await getAllBooks()) || [];
 
-  console.log(books);
+  
   
 
   const totalBooks = books.length;

@@ -80,7 +80,7 @@ export default function AddBooks() {
         toast.error("Upload Failed");
       }
     } catch (error) {
-      console.log(error);
+
       toast.error("Upload Failed");
     } finally {
       setUploading(false);

@@ -29,7 +29,7 @@ export default function RootLayout({ children }) {
     >
       <body className="min-h-full flex flex-col">
         <Navbar />
-        <Toaster position="top-right"
+        <Toaster position="top-center"
           gutter={12}
           toastOptions={{
             duration: 3000,

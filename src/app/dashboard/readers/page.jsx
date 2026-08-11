@@ -23,8 +23,6 @@ const Readers_Page = () => {
 
         const data = await userSummeryData(userId);
 
-        console.log("User Summary:", data);
-
         setUserData(data);
       } catch (error) {
         console.error("User Summary Error:", error);

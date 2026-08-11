@@ -62,7 +62,6 @@ const OrderCard = ({ order }) => {
 
   return (
     <div 
-      onClick={() => handelMakePayment(order._id)} 
       className="group relative bg-slate-900/60 hover:bg-slate-900/90 border border-slate-800/80 hover:border-indigo-500/50 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1.5 flex flex-col justify-between cursor-pointer"
     >
       <div>

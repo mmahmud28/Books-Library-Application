@@ -57,7 +57,7 @@ const LibrarianAllBooksPage = () => {
             return;
         }
 
-        console.log("Sending:", id, newStatus);
+
 
         try {
             const res = await fetch(

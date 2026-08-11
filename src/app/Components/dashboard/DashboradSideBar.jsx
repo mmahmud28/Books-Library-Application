@@ -1,7 +1,21 @@
 import { getUserSession } from "@/lib/core/session";
-import { Bell, Envelope, Gear, House, Magnifier, Person } from "@gravity-ui/icons";
 import { Drawer } from "@heroui/react";
 import Link from "next/link";
+
+import { 
+  House, 
+  BookOpen, 
+  Library, 
+  ShoppingBag, 
+  LayoutDashboard, 
+  BookMarked, 
+  PlusCircle, 
+  ClipboardList, 
+  ShieldCheck, 
+  BookText, 
+  Building2, 
+  Users 
+} from "lucide-react";
 
 export async function DashBoardSidebar() {
 
@@ -13,23 +27,23 @@ export async function DashBoardSidebar() {
 
     const userNavLinks = [
         { icon: House, label: "Dashboard", href: "/dashboard/readers" },
-        { icon: Magnifier, label: "Books", href: "/dashboard/readers/books" },
-        { icon: Envelope, label: "Books Library", href: "/dashboard/readers/books/publisherbooks" },
-        { icon: Person, label: "Orders List", href: "/dashboard/readers/my-orders" },
+        { icon: BookOpen, label: "Books", href: "/dashboard/readers/books" },
+        { icon: Library, label: "Books Library", href: "/dashboard/readers/books/publisherbooks" },
+        { icon: ShoppingBag, label: "Orders List", href: "/dashboard/readers/my-orders" },
     ]
 
     const librarianNavLinks = [
-        { icon: House, label: "Dashboard", href: "/dashboard/librarian" },
-        { icon: Magnifier, label: "My Books", href: "/dashboard/librarian/books" },
-        { icon: Bell, label: "New Books Add", href: "/dashboard/librarian/books/add" },
-        { icon: Envelope, label: "Orders Books", href: "/dashboard/librarian/booksOrder" },
+        { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard/librarian" },
+        { icon: BookMarked, label: "My Books", href: "/dashboard/librarian/books" },
+        { icon: PlusCircle, label: "New Books Add", href: "/dashboard/librarian/books/add" },
+        { icon: ClipboardList, label: "Orders Books", href: "/dashboard/librarian/booksOrder" },
     ]
 
     const adminNavLinks = [
-        { icon: House, label: "Dashboard", href: "/dashboard/admin" },
-        { icon: Magnifier, label: "Books List", href: "/dashboard/admin/books" },
-        { icon: Bell, label: "Library List", href: "/dashboard/admin/books/publisherbooks" },
-        { icon: Envelope, label: "All User List", href: "/dashboard/admin/userList" },
+        { icon: ShieldCheck, label: "Dashboard", href: "/dashboard/admin" },
+        { icon: BookText, label: "Books List", href: "/dashboard/admin/books" },
+        { icon: Building2, label: "Library List", href: "/dashboard/admin/books/publisherbooks" },
+        { icon: Users, label: "All User List", href: "/dashboard/admin/userList" },
     ]
 
 

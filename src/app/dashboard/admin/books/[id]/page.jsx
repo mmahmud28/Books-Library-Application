@@ -3,9 +3,7 @@ import { getSingleBooks } from "@/lib/api/booksLoad";
 
 const BooksDeatiledPage = async ({ params }) => {
   const { id } = await params;
-  const safeBook = await getSingleBooks(id);
-
-  console.log(safeBook);
+  const safeBook = await getSingleBooks(id);  
   
 
   return <LibrarianBookDetailPage safeBook={safeBook} />;

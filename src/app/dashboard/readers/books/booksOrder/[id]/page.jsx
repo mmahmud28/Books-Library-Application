@@ -19,9 +19,7 @@ export default async function OrderBooks({ params }) {
   // অনেক সময় response 'rawBook.data' বা 'rawBook.result' এ থাকে।
   const safeBook = rawBook?.data || rawBook?.book || rawBook || null;
 
-  // Terminal/Console এ চেক করুন ডাটা ঠিকমতো পাচ্ছন কি না
-  console.log("Fetched Raw Book:", rawBook);
-  console.log("Resolved Safe Book:", safeBook);
+  
 
   if (!safeBook || Object.keys(safeBook).length === 0) {
     return (

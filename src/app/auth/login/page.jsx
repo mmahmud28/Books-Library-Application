@@ -1,8 +1,20 @@
 import { Suspense } from "react";
 import LoginForm from "./LoginForm";
+import { authClient } from "@/lib/auth-client";
+import toast from "react-hot-toast";
 
 
-const LoginPage = () => {
+const LoginPage = async () => {
+  const { data, error } = await authClient.token()
+  if (error) {
+    // handle error
+  }
+  if (data) {
+    const jwtToken = data.token
+    toast.success("Your Token", jwtToken);
+    console.log(jwtToken);
+    
+  }
   return (
     <Suspense
       fallback={

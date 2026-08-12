@@ -1,7 +1,6 @@
 import PublicBookDetailUI from "@/app/Components/PublicBookDetailUI";
 import { getSingleBooks } from "@/lib/api/booksLoad";
 import { getUserSession } from "@/lib/core/session";
-import { headers } from "next/headers";
 
 const BooksDeatiledPage = async ({ params }) => {
   const { id } = await params;
@@ -13,11 +12,6 @@ const BooksDeatiledPage = async ({ params }) => {
   const reviews = bookData?.reviews || [];
   const reviewCount = bookData?.reviewCount || 0;
 
-  const token = await auth.api.getToken({
-    headers: await headers(),
-  })
-
-  console.log("Your JWT Token:", token);
   
   
 

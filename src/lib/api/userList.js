@@ -56,7 +56,7 @@ export const userSummeryData = async (userId) => {
     return await res.json();
 };
 
-export const librarianSummeryData = async (userId) => {
+export const librarianSummeryData = async (userId, token) => {
     if (!userId) return null;
 
     const res = await fetch(
@@ -65,6 +65,7 @@ export const librarianSummeryData = async (userId) => {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
             },
             cache: "no-store",
         }
@@ -77,13 +78,14 @@ export const librarianSummeryData = async (userId) => {
     return await res.json();
 };
 
-export const adminSummeryData = async () => {
+export const adminSummeryData = async (token) => {
     const res = await fetch(
         `${baseUrl}/api/adminSummary`,
         {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
             },
             cache: "no-store",
         }
@@ -97,3 +99,4 @@ export const adminSummeryData = async () => {
 
     return await res.json();
 };
+

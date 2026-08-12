@@ -1,5 +1,7 @@
 import { librarianSummeryData } from "@/lib/api/userList";
+import { auth } from "@/lib/auth";
 import { getUserSession } from "@/lib/core/session";
+import { headers } from "next/headers";
 import React from "react";
 
 const LibrianPage = async () => {
@@ -16,7 +18,12 @@ const LibrianPage = async () => {
     );
   }
 
-  const summaryData = await librarianSummeryData(userId);
+  const {token} = await auth.api.getToken({
+    headers: await headers(),
+  })
+  
+
+  const summaryData = await librarianSummeryData(userId, token);
 
   
 

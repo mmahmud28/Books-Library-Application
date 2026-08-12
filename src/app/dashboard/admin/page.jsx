@@ -1,9 +1,17 @@
 import { adminSummeryData } from '@/lib/api/userList';
 import React from 'react';
 import Image from 'next/image';
+import { headers } from 'next/headers';
+import { auth } from '@/lib/auth';
 
 const AdminPage = async () => {
-    const summary = await adminSummeryData();
+
+     const {token} = await auth.api.getToken({
+        headers: await headers(),
+      })
+
+
+    const summary = await adminSummeryData(token);
     const { stats, users, books, orders, delivery, reviews } = summary;
 
     return (
@@ -288,7 +296,7 @@ const AdminPage = async () => {
                                     </div>
                                 </div>
                                 <p className="text-xs text-slate-300 italic bg-slate-900/40 p-2 rounded-lg border border-slate-800/50">
-                                    "{review.reviewText.trim()}"
+                                    {review.reviewText.trim()}
                                 </p>
                             </div>
                         ))}

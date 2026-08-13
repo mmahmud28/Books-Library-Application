@@ -34,3 +34,14 @@ export const getSingleBooks = async (id) =>{
     const data = await res.json();
     return data;
 }
+
+export const publicStats = async () =>{
+    const res = await fetch(`${baseUrl}/api/public-stats`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+    const data = await res.json();
+    return data;
+} 

@@ -149,6 +149,8 @@ export default function UserManagementView({ sections }) {
                                             })}
                                         </td>
 
+                                        {/* Edit or Delete User */}
+
                                         <td>
                                             <div className="flex justify-center items-center gap-1.5">
                                                 <button

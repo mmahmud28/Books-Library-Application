@@ -21,7 +21,17 @@ const Readers_Page = () => {
         setLoading(true);
         setError(null);
 
-        const data = await userSummeryData(userId);
+        const tokenResponse = await fetch("/api/auth/token");
+
+        if (!tokenResponse.ok) {
+          throw new Error("Failed to get authentication token");
+        }
+
+        const tokenData = await tokenResponse.json();
+
+        const token = tokenData.token;        
+
+        const data = await userSummeryData(userId, token);
 
         setUserData(data);
       } catch (error) {

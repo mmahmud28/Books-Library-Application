@@ -35,7 +35,7 @@ export const booksStatusUpdate = async (bookId) => {
 };
 
 
-export const userSummeryData = async (userId) => {
+export const userSummeryData = async (userId, token) => {
     if (!userId) return null;
 
     const res = await fetch(
@@ -44,6 +44,7 @@ export const userSummeryData = async (userId) => {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
             },
             cache: "no-store",
         }
